@@ -10,6 +10,8 @@ This first beta provides:
 - Fresh-report checks, minimum test counts, failure/error checks, skipped limits, and trusted baseline drop detection.
 - Stable finding codes, GitHub annotations, and a Job Summary.
 - Full Quick Starts in English, Traditional Chinese, Simplified Chinese, and Japanese.
+- Ready-to-use Vitest, Jest, pytest, and Maven integration recipes.
+- A solo-maintainer beta policy where automated hard gates control releases and external testing remains post-release evidence.
 
 HonestCI verifies observable CI execution evidence. It does not prove test quality or software correctness.
 

@@ -11,7 +11,7 @@ HonestCI 會包住測試命令、驗證本次新產生或變更的 JUnit 證據�
 加入後：JUnit XML 未更新或不存在         → HCI003 / HCI001 → 阻擋
 ```
 
-發布狀態：公開 beta 候選版。原始碼與封裝後的 Action 已可審查；npm 套件及 `v0` 標籤會等待使用者核准後才發布。
+發布狀態：公開 beta `v0.1.0-beta.1`。Action 可使用下方不可變的 beta 標籤安裝；npm 套件尚未發布。
 
 ## 五分鐘 Quick Start
 
@@ -33,10 +33,10 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-在 checkout 與安裝依賴之後加入 Action，並把範例命令換成你的 JUnit 測試命令。核准 beta 發布後才會建立 `v0` 參照。
+在 checkout 與安裝依賴之後加入 Action，並把範例命令換成你的 JUnit 測試命令。固定使用不可變的 beta 標籤可維持 workflow 可重現。
 
 ```yaml
-- uses: f0909172434/honest-ci@v0
+- uses: f0909172434/honest-ci@v0.1.0-beta.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -110,6 +110,6 @@ HonestCI v1 支援 GitHub Actions、JUnit XML、Ubuntu、Windows 與 macOS。不
 
 HonestCI 只驗證可觀察的 CI 執行證據。它不證明測試充分、斷言有意義、所有應有測試都存在，也不證明程式正確。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · 安全：[docs/SECURITY.md](docs/SECURITY.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [Beta 發布政策](docs/BETA_POLICY.md) · 安全：[docs/SECURITY.md](docs/SECURITY.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md)
 
 MIT License

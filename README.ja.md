@@ -11,7 +11,7 @@ HonestCI はテストコマンドをラップし、今回生成または更新�
 導入後：JUnit XML が未更新または存在しない → HCI003 / HCI001 → ブロック
 ```
 
-リリース状況：公開 beta 候補です。ソースとバンドル済み Action はレビュー可能ですが、npm パッケージと `v0` タグはユーザーの承認後に公開します。
+リリース状況：公開 beta `v0.1.0-beta.1` です。Action は下記の不変 beta タグから利用できます。npm パッケージはまだ公開していません。
 
 ## 5 分 Quick Start
 
@@ -33,10 +33,10 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-checkout と依存関係のインストール後に Action を追加し、例のコマンドを利用中のランナーの JUnit コマンドに置き換えます。`v0` 参照は beta 公開の承認後に作成されます。
+checkout と依存関係のインストール後に Action を追加し、例のコマンドを利用中のランナーの JUnit コマンドに置き換えます。不変の beta タグを固定すると workflow の再現性を保てます。
 
 ```yaml
-- uses: f0909172434/honest-ci@v0
+- uses: f0909172434/honest-ci@v0.1.0-beta.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -110,6 +110,6 @@ HonestCI v1 は GitHub Actions、JUnit XML、Ubuntu、Windows、macOS に対応�
 
 HonestCI が検証するのは観測可能な CI 実行証拠です。テストの十分性、アサーションの妥当性、必要なテストがすべて存在すること、プログラムの正しさは証明しません。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · セキュリティ：[docs/SECURITY.md](docs/SECURITY.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [Beta リリース方針](docs/BETA_POLICY.md) · セキュリティ：[docs/SECURITY.md](docs/SECURITY.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md)
 
 MIT License
