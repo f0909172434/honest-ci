@@ -6,12 +6,16 @@
 
 HonestCI はテストコマンドをラップし、今回生成または更新された JUnit 証拠を検証し、観測されたテスト数をデフォルトブランチの信頼できるベースラインと比較します。また、GitHub Actions にある偽の成功につながり得る記述を警告します。
 
+![HonestCI 導入前後の再現可能な false-green 結果](launch/assets/false-green-before-after.png)
+
+[before/after demo を再現](launch/DEMO.md)：同じ zero-test runner は単独で exit 0 ですが、HonestCI が JUnit 証拠を検査すると `HCI004_ZERO_TESTS` でブロックされます。
+
 ```text
 導入前：npm test || true                 → 成功
 導入後：JUnit XML が未更新または存在しない → HCI003 / HCI001 → ブロック
 ```
 
-リリース状況：公開 beta `v0.1.0-beta.1` です。Action は下記の不変 beta タグから利用できます。npm パッケージはまだ公開していません。
+リリース状況：公開 beta `v0.1.0-beta.1` です。下記の Action はそのリリースの完全な commit に固定し、CLI は同じバージョンの GitHub Release アセットから利用できます。npm registry パッケージはまだ公開していません。
 
 ## 5 分 Quick Start
 
@@ -33,14 +37,20 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-checkout と依存関係のインストール後に Action を追加し、例のコマンドを利用中のランナーの JUnit コマンドに置き換えます。不変の beta タグを固定すると workflow の再現性を保てます。
+checkout と依存関係のインストール後に Action を追加し、例のコマンドを利用中のランナーの JUnit コマンドに置き換えます。完全な commit pin により、タグが移動しても workflow の内容は変わりません。
 
 ```yaml
-- uses: f0909172434/honest-ci@v0.1.0-beta.1
+- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
     github-token: ${{ github.token }}
+```
+
+バージョン固定の CLI アセットをインストールします。同じ beta を GitHub Releases から取得するため、npm registry での公開は不要です。
+
+```console
+npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
 ```
 
 デフォルトブランチで成功した後、ベースラインを生成、確認、コミットします。
@@ -77,7 +87,7 @@ Action に必要な権限は `contents: read` のみです。annotations と Job
 Node.js 20 以降が必要です。
 
 ```console
-npm install --save-dev honest-ci
+npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
