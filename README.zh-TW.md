@@ -6,12 +6,16 @@
 
 HonestCI 會包住測試命令、驗證本次新產生或變更的 JUnit 證據、與預設分支的可信基準比較測試數，並警告 GitHub Actions 中可疑的假綠燈寫法。
 
+![加入 HonestCI 前後的可重現假綠燈結果](launch/assets/false-green-before-after.png)
+
+[重現 before/after demo](launch/DEMO.md)：同一個零測試 runner 單獨執行時 exit 0；HonestCI 檢查其 JUnit 證據後，會以 `HCI004_ZERO_TESTS` 阻擋。
+
 ```text
 加入前：npm test || true                 → 綠燈
 加入後：JUnit XML 未更新或不存在         → HCI003 / HCI001 → 阻擋
 ```
 
-發布狀態：公開 beta `v0.1.0-beta.1`。Action 可使用下方不可變的 beta 標籤安裝；npm 套件尚未發布。
+發布狀態：公開 beta `v0.1.0-beta.1`。下方 Action 固定到該版本的完整 commit，CLI 則使用同版本的 GitHub Release 資產；npm registry 套件尚未發布。
 
 ## 五分鐘 Quick Start
 
@@ -33,14 +37,20 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-在 checkout 與安裝依賴之後加入 Action，並把範例命令換成你的 JUnit 測試命令。固定使用不可變的 beta 標籤可維持 workflow 可重現。
+在 checkout 與安裝依賴之後加入 Action，並把範例命令換成你的 JUnit 測試命令。完整 commit pin 可避免標籤移動時改變 workflow 內容。
 
 ```yaml
-- uses: f0909172434/honest-ci@v0.1.0-beta.1
+- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
     github-token: ${{ github.token }}
+```
+
+安裝固定版本的 CLI 資產。此命令會從 GitHub Releases 取得同一個 beta，不需要 npm registry 發布：
+
+```console
+npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
 ```
 
 預設分支成功執行後，產生、檢查並提交基準：
@@ -77,7 +87,7 @@ Action 只需要 `contents: read`，會寫入 annotations 與 Job Summary，不�
 需要 Node.js 20 以上。
 
 ```console
-npm install --save-dev honest-ci
+npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml

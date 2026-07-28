@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>HonestCI false-green before and after</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body { width: 1280px; height: 640px; margin: 0; overflow: hidden; }
+  body {
+    padding: 48px 56px 38px;
+    color: #eef5f2;
+    background: radial-gradient(circle at 18% 0%, #163a37 0, #0b181b 42%, #071013 100%);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; }
+  h1 { margin: 0; font-size: 43px; line-height: 1.08; letter-spacing: -1.3px; }
+  .sub { margin-top: 10px; color: #a9c3be; font-size: 19px; }
+  .badge { margin-top: 4px; padding: 9px 14px; border: 1px solid #38605a; border-radius: 999px; color: #b8d9d2; font: 600 14px ui-monospace, monospace; white-space: nowrap; }
+  main { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+  .panel { height: 360px; border: 1px solid #2b4646; border-radius: 16px; overflow: hidden; background: #0b1418; box-shadow: 0 18px 45px #0007; }
+  .panel-head { height: 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; background: #102126; border-bottom: 1px solid #263e42; }
+  .panel-title { font-size: 19px; font-weight: 720; }
+  .status { padding: 6px 11px; border-radius: 999px; font: 700 13px ui-monospace, monospace; }
+  .green { color: #9cf7bb; background: #123c28; border: 1px solid #267148; }
+  .red { color: #ffb0aa; background: #471e20; border: 1px solid #7d3438; }
+  pre { margin: 0; padding: 23px 22px; color: #c9d8d6; font: 16px/1.58 "Cascadia Mono", Consolas, ui-monospace, monospace; white-space: pre-wrap; }
+  .cmd { color: #76d6c3; }
+  .ok { color: #8ee8aa; }
+  .fail { color: #ff8f86; font-weight: 700; }
+  footer { margin-top: 22px; display: flex; justify-content: space-between; color: #91aaa6; font-size: 14px; }
+  footer strong { color: #c8dbd7; font-weight: 650; }
+</style>
+<body>
+  <header>
+    <div>
+      <h1>Same runner. Different CI truth.</h1>
+      <div class="sub">A zero-test JUnit report exits 0—until observable evidence is checked.</div>
+    </div>
+    <div class="badge">HonestCI v0.1.0-beta.1</div>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="panel-head">
+        <span class="panel-title">Before HonestCI</span>
+        <span class="status green">GREEN · EXIT 0</span>
+      </div>
+      <pre><span class="cmd">$ node demo/launch/false-green-runner.mjs</span>
+
+test runner: wrote JUnit XML with tests=0
+test runner: exited 0, so ordinary CI stays green
+
+<span class="ok">BEFORE_EXIT=0</span></pre>
+    </section>
+    <section class="panel">
+      <div class="panel-head">
+        <span class="panel-title">After HonestCI</span>
+        <span class="status red">BLOCKED · EXIT 1</span>
+      </div>
+      <pre><span class="cmd">$ honest-ci run -- …same runner…</span>
+
+HonestCI FAILED
+Tests: 0  Failures: 0  Errors: 0  Skipped: 0
+
+<span class="fail">ERROR HCI004_ZERO_TESTS</span>
+Report "unit" contains zero tests.
+
+<span class="fail">AFTER_EXIT=1</span></pre>
+    </section>
+  </main>
+  <footer>
+    <span><strong>Reproduce:</strong> npm run demo:verify</span>
+    <span>Observable CI evidence only · not a claim of test quality or program correctness</span>
+  </footer>
+</body>
+</html>

@@ -6,12 +6,16 @@ Make green CI mean the tests you expected actually ran.
 
 HonestCI wraps a test command, verifies fresh JUnit evidence, compares the observed test count with a trusted default-branch baseline, and warns about suspicious GitHub Actions patterns.
 
+![Reproducible false-green run before and after HonestCI](launch/assets/false-green-before-after.png)
+
+[Reproduce the before/after demo](launch/DEMO.md): the same zero-test runner exits 0 alone and is blocked with `HCI004_ZERO_TESTS` when HonestCI checks its JUnit evidence.
+
 ```text
 Before HonestCI:  npm test || true                 → green
 After HonestCI:   unchanged or missing JUnit XML   → HCI003 / HCI001 → blocked
 ```
 
-Release status: public beta `v0.1.0-beta.1`. Install the Action from the immutable beta tag below. The npm package is not published yet.
+Release status: public beta `v0.1.0-beta.1`. The Action below is pinned to that release's full commit, and the CLI is available from the matching GitHub Release asset. The npm registry package is not published yet.
 
 ## Five-minute Quick Start
 
@@ -33,14 +37,20 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. Pinning the immutable beta tag keeps the workflow reproducible.
+Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The full commit pin keeps the workflow fixed even if a tag is moved.
 
 ```yaml
-- uses: f0909172434/honest-ci@v0.1.0-beta.1
+- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
     github-token: ${{ github.token }}
+```
+
+Install the versioned CLI asset. This uses the same beta from GitHub Releases and does not require an npm registry release:
+
+```console
+npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
 ```
 
 After a successful default-branch run, create and review the baseline:
@@ -77,7 +87,7 @@ See [finding codes](docs/FINDINGS.md) for the stable machine interface.
 Requires Node.js 20 or newer.
 
 ```console
-npm install --save-dev honest-ci
+npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml

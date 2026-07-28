@@ -18,6 +18,8 @@
     "honest-ci.example.yml",
     "docs/",
     "demo/",
+    "launch/DEMO.md",
+    "launch/assets/false-green-before-after.png",
     "CONTRIBUTING.md",
     "README.md",
     "README.zh-TW.md",
@@ -45,10 +47,12 @@
     "build:cli": "ncc build build/cli.js -o dist/cli --minify",
     "build:action": "ncc build build/action.js -o dist/action --minify",
     "build": "npm run build:types && npm run build:cli && npm run build:action",
+    "demo:verify": "node scripts/verify-launch-demo.mjs",
+    "package:smoke": "node scripts/package-smoke.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "verify": "npm run typecheck && npm test && npm run build",
+    "verify": "npm run typecheck && npm test && npm run build && npm run demo:verify && npm run package:smoke",
     "prepack": "npm run verify"
   },
   "dependencies": {
