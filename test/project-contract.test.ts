@@ -52,6 +52,7 @@ describe("public project contract", () => {
     const demo = await readFile("launch/DEMO.md", "utf8");
     const operations = await readFile("launch/OPERATIONS.md", "utf8");
     const approval = await readFile("launch/APPROVAL_BATCH.md", "utf8");
+    const localizedChannels = await readFile("launch/LOCALIZED_CHANNELS.md", "utf8");
     expect(posts).not.toContain("**");
     for (const heading of ["English main release post", "繁體中文主發布文", "简体中文主发布文", "日本語メインリリース文"]) {
       expect(posts).toContain(heading);
@@ -60,5 +61,10 @@ describe("public project contract", () => {
     expect(demo).toContain("HCI004_ZERO_TESTS");
     expect(operations).toContain("Human-only steps");
     expect(approval).toContain("Status: not approved");
+    for (const channel of ["DevOps Taiwan", "Dcard", "Threads", "X", "V2EX", "SegmentFault"]) {
+      expect(localizedChannels).toContain(channel);
+    }
+    expect(localizedChannels).toContain("admin permission as required");
+    expect(approval).toContain("at most one initial public channel");
   });
 });
