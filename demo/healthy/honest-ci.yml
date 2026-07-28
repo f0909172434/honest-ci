@@ -1,0 +1,15 @@
+version: 1
+reports:
+  - name: unit
+    paths:
+      - demo/healthy/junit.xml
+    format: junit
+    min_tests: 3
+    max_drop_percent: 10
+    max_skipped_percent: null
+baseline:
+  file: demo/healthy/baseline.json
+  source: default-branch
+workflows:
+  paths:
+    - demo/healthy/workflow.yml
