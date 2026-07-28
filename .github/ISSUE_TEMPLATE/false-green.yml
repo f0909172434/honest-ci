@@ -1,0 +1,36 @@
+name: False-green example
+description: Report a real CI run that passed even though expected tests did not run.
+title: "[false-green] "
+labels:
+  - false-green
+body:
+  - type: markdown
+    attributes:
+      value: Remove secrets and private repository details before submitting.
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected test execution
+      description: What tests should have run, and what observable report should they have produced?
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed evidence
+      description: What did the workflow, exit status, and JUnit report show?
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Minimal workflow excerpt
+      render: yaml
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: HonestCI version
+    validations:
+      required: true

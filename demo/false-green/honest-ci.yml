@@ -1,0 +1,15 @@
+version: 1
+reports:
+  - name: zero-tests
+    paths:
+      - demo/false-green/junit.xml
+    format: junit
+    min_tests: 1
+    max_drop_percent: 10
+    max_skipped_percent: null
+baseline:
+  file: demo/false-green/baseline.json
+  source: default-branch
+workflows:
+  paths:
+    - demo/false-green/workflow.yml

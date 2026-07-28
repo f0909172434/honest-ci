@@ -1,0 +1,65 @@
+{
+  "name": "honest-ci",
+  "version": "0.1.0-beta.1",
+  "description": "Make green CI mean the tests you expected actually ran.",
+  "license": "MIT",
+  "author": "f0909172434",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "honest-ci": "dist/cli/index.js"
+  },
+  "files": [
+    "dist/cli/index.js",
+    "dist/action/index.js",
+    "action.yml",
+    "honest-ci.example.yml",
+    "README.md",
+    "README.zh-TW.md",
+    "README.zh-CN.md",
+    "README.ja.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/f0909172434/honest-ci.git"
+  },
+  "bugs": {
+    "url": "https://github.com/f0909172434/honest-ci/issues"
+  },
+  "homepage": "https://github.com/f0909172434/honest-ci#readme",
+  "keywords": [
+    "ci",
+    "github-actions",
+    "junit",
+    "testing",
+    "devops"
+  ],
+  "scripts": {
+    "build:types": "tsc -p tsconfig.build.json",
+    "build:cli": "ncc build build/cli.js -o dist/cli --minify",
+    "build:action": "ncc build build/action.js -o dist/action --minify",
+    "build": "npm run build:types && npm run build:cli && npm run build:action",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "verify": "npm run typecheck && npm test && npm run build",
+    "prepack": "npm run verify"
+  },
+  "dependencies": {
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "commander": "^14.0.0",
+    "fast-glob": "^3.3.3",
+    "fast-xml-parser": "^5.2.5",
+    "yaml": "^2.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

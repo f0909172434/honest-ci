@@ -1,0 +1,15 @@
+name: Intentionally false-green examples
+on: [push]
+jobs:
+  tests:
+    if: ${{ github.event_name == 'push' }}
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Swallow a failing test exit code
+        run: npm test || true
+      - name: Permit zero tests
+        run: npm test -- --passWithNoTests
+      - name: Dynamically skipped tests
+        if: ${{ github.ref == 'refs/heads/nonexistent' }}
+        run: npm test

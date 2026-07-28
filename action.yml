@@ -1,0 +1,37 @@
+name: HonestCI
+author: f0909172434
+description: Make green CI mean the tests you expected actually ran.
+inputs:
+  command:
+    description: Test command to wrap. Leave empty to check existing reports.
+    required: false
+    default: ""
+  config:
+    description: Path to the HonestCI configuration file.
+    required: false
+    default: honest-ci.yml
+  github-token:
+    description: Token used only to read the trusted baseline from a pull request base commit.
+    required: false
+    default: ""
+outputs:
+  tests:
+    description: Total tests observed.
+  failures:
+    description: Total failed tests observed.
+  errors:
+    description: Total errored tests observed.
+  skipped:
+    description: Total skipped tests observed.
+  baseline-tests:
+    description: Total tests in the trusted baseline, when available.
+  drop-percent:
+    description: Percentage drop from the trusted baseline, when available.
+  warnings:
+    description: Number of warning findings.
+runs:
+  using: node20
+  main: dist/action/index.js
+branding:
+  icon: shield
+  color: green
