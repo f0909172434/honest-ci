@@ -17,7 +17,8 @@ This checklist prepares work; it does not authorize public actions.
 
 - Final approval of the exact launch batch, wording, channels, images, and schedule.
 - Account login, account creation, 2FA, passkeys, CAPTCHA, invitations, agreements, or community eligibility decisions.
-- Rechecking live subreddit/thread rules and deciding whether self-promotion is permitted that day.
+- Rechecking live subreddit, Dcard board, Facebook/X/Threads community, V2EX node, and article-platform rules and deciding whether self-promotion is permitted that day.
+- Contacting community administrators, answering membership questions, and interpreting an administrator's permission or conditions.
 - Enabling GitHub Discussions, changing repository social preview or topics, and pressing any public post/reply control.
 - Publishing npm packages, Marketplace listings, GitHub Releases, moving tags, or public community posts.
 - Disclosing private adoption or support evidence.
@@ -29,6 +30,8 @@ This checklist prepares work; it does not authorize public actions.
 - [ ] `npm run demo:verify` passes and the image digest matches `launch/ASSET_MANIFEST.md`.
 - [ ] No user, star, install, download, testimonial, or finding count is asserted without dated evidence.
 - [ ] Official channel rules were reopened that day.
+- [ ] For a Facebook/X/Threads community or other managed group, the exact group URL and current rules are recorded; administrator permission is attached when required.
+- [ ] The selected localized draft matches the account language and is complete on-platform rather than a teaser that redirects readers.
 - [ ] The post contains no Markdown `**` markers.
 - [ ] The maintainer can stay available for early replies.
 - [ ] Exact text, link, image, time, and account are included in the approval batch.

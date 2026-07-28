@@ -7,9 +7,12 @@ Rules were checked on 2026-07-28 using the official sources linked below. Rechec
 1. GitHub repository metadata and an optional maintainer Announcement discussion: canonical evidence home.
 2. Show HN: best first external launch when the repository and demo are immediately usable.
 3. DEV Community `#showdev`: a technical case study after early questions improve the explanation.
-4. The current `r/devops` Weekly Self Promotion Thread only: one disclosed reply, never a blind standalone launch post.
-5. Hashnode: optional later tutorial with independent technical value.
-6. Lobsters: not in the first batch; only after genuine community participation and ratio eligibility.
+4. Regional lane: one Traditional or Simplified Chinese channel from `launch/LOCALIZED_CHANNELS.md`, selected by live rules and existing account/community fit.
+5. The current `r/devops` Weekly Self Promotion Thread only: one disclosed reply, never a blind standalone launch post.
+6. Hashnode: optional later tutorial with independent technical value.
+7. Lobsters: not in the first batch; only after genuine community participation and ratio eligibility.
+
+The regional lane is not a simultaneous cross-post bundle. Preferred candidates are DevOps Taiwan after administrator permission, V2EX `分享创造`, a complete Dcard 軟體工程師板 case study after a live rule check, and a single localized X or Threads thread. SegmentFault is a later technical-article option. See [Traditional and Simplified Chinese channels](LOCALIZED_CHANNELS.md) for exact drafts, evidence status, and human approval boundaries.
 
 Stack Overflow is excluded as a launch channel. Its promotion policy allows disclosed product references only when they directly answer an existing question; pure traffic-driving is spam.
 
