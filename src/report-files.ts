@@ -8,6 +8,7 @@ import { isInsideWorkspace, toPosixPath } from "./paths.js";
 import { HonestCIInputError, type FileSignature, type HonestConfig, type ReportConfig, type ReportSnapshots } from "./types.js";
 
 export async function findReportFiles(report: ReportConfig, workspace: string): Promise<string[]> {
+  const canonicalWorkspace = await realpath(workspace);
   const matches = await fg(report.paths, {
     absolute: true,
     cwd: workspace,
@@ -19,10 +20,10 @@ export async function findReportFiles(report: ReportConfig, workspace: string): 
   const files = new Map<string, string>();
   for (const match of matches) {
     const canonical = await realpath(match);
-    if (!isInsideWorkspace(workspace, canonical)) {
+    if (!isInsideWorkspace(canonicalWorkspace, canonical)) {
       throw new HonestCIInputError(`Report file leaves the workspace: ${match}.`);
     }
-    files.set(process.platform === "win32" ? canonical.toLowerCase() : canonical, canonical);
+    files.set(process.platform === "win32" ? canonical.toLowerCase() : canonical, path.resolve(match));
   }
   return [...files.values()].sort((left, right) => left.localeCompare(right));
 }
