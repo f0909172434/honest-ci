@@ -6,6 +6,10 @@ import path from "node:path";
 const root = process.cwd();
 const npmCli = process.env.npm_execpath;
 if (!npmCli) throw new Error("package:smoke must be run through npm so npm_execpath is available.");
+const npmEnv = { ...process.env };
+for (const key of Object.keys(npmEnv)) {
+  if (key.toLowerCase() === "npm_config_dry_run") delete npmEnv[key];
+}
 const temp = await mkdtemp(path.join(os.tmpdir(), "honest-ci-package-smoke-"));
 let tarball;
 
@@ -29,11 +33,11 @@ function run(command, args, cwd, options = {}) {
 }
 
 function runNpm(args, cwd) {
-  return run(process.execPath, [npmCli, ...args], cwd);
+  return run(process.execPath, [npmCli, ...args], cwd, { env: npmEnv });
 }
 
 try {
-  const packed = JSON.parse(runNpm(["pack", "--ignore-scripts", "--json"], root));
+  const packed = JSON.parse(runNpm(["pack", "--ignore-scripts", "--dry-run=false", "--json"], root));
   const filename = packed[0]?.filename;
   if (typeof filename !== "string") throw new Error("npm pack did not return a tarball filename.");
   const packedFiles = new Set(packed[0]?.files?.map((entry) => entry.path));
