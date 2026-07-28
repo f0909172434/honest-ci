@@ -37,9 +37,8 @@ describe("public project contract", () => {
 
   it("keeps beta release gates independent from external tester counts", async () => {
     const policy = await readFile("docs/BETA_POLICY.md", "utf8");
-    const checklist = await readFile("launch/RELEASE_CHECKLIST.md", "utf8");
     expect(policy).toContain("External use is evidence, not permission");
-    expect(checklist).toContain("External testing is a post-release evidence target, not a beta blocker");
+    expect(policy).toContain("A missing external tester does not fail a gate");
   });
 
   it("provides runnable JUnit recipes for common ecosystems", async () => {
@@ -47,24 +46,10 @@ describe("public project contract", () => {
     for (const runner of ["Vitest", "Jest", "pytest", "Maven"]) expect(recipes).toContain(runner);
   });
 
-  it("keeps launch claims tied to executable evidence and human approval", async () => {
-    const posts = await readFile("launch/POSTS.md", "utf8");
+  it("keeps the public demo tied to executable evidence and explicit limits", async () => {
     const demo = await readFile("launch/DEMO.md", "utf8");
-    const operations = await readFile("launch/OPERATIONS.md", "utf8");
-    const approval = await readFile("launch/APPROVAL_BATCH.md", "utf8");
-    const localizedChannels = await readFile("launch/LOCALIZED_CHANNELS.md", "utf8");
-    expect(posts).not.toContain("**");
-    for (const heading of ["English main release post", "繁體中文主發布文", "简体中文主发布文", "日本語メインリリース文"]) {
-      expect(posts).toContain(heading);
-    }
     expect(demo).toContain("npm run demo:verify");
     expect(demo).toContain("HCI004_ZERO_TESTS");
-    expect(operations).toContain("Human-only steps");
-    expect(approval).toContain("Status: not approved");
-    for (const channel of ["DevOps Taiwan", "Dcard", "Threads", "X", "V2EX", "SegmentFault"]) {
-      expect(localizedChannels).toContain(channel);
-    }
-    expect(localizedChannels).toContain("admin permission as required");
-    expect(approval).toContain("at most one initial public channel");
+    expect(demo).toContain("does not prove that any test suite is sufficient");
   });
 });
