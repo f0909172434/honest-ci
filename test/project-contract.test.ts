@@ -18,7 +18,7 @@ describe("public project contract", () => {
 
   it("declares every required Action input and output", async () => {
     const metadata = parse(await readFile("action.yml", "utf8")) as Record<string, any>;
-    expect(metadata.runs).toEqual({ using: "node20", main: "dist/action/index.js" });
+    expect(metadata.runs).toEqual({ using: "node24", main: "dist/action/index.js" });
     expect(Object.keys(metadata.inputs)).toEqual(expect.arrayContaining(["command", "config", "github-token"]));
     expect(Object.keys(metadata.outputs)).toEqual(expect.arrayContaining([
       "tests", "failures", "errors", "skipped", "baseline-tests", "drop-percent", "warnings",

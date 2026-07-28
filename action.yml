@@ -30,7 +30,7 @@ outputs:
   warnings:
     description: Number of warning findings.
 runs:
-  using: node20
+  using: node24
   main: dist/action/index.js
 branding:
   icon: shield
