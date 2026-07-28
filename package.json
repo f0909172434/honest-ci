@@ -16,6 +16,9 @@
     "dist/action/index.js",
     "action.yml",
     "honest-ci.example.yml",
+    "docs/",
+    "demo/",
+    "CONTRIBUTING.md",
     "README.md",
     "README.zh-TW.md",
     "README.zh-CN.md",
@@ -57,7 +60,7 @@
     "yaml": "^2.8.1"
   },
   "devDependencies": {
-    "@types/node": "^24.1.0",
+    "@types/node": "^20.19.43",
     "@vercel/ncc": "^0.38.3",
     "typescript": "^5.8.3",
     "vitest": "^3.2.4"

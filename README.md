@@ -11,7 +11,7 @@ Before HonestCI:  npm test || true                 → green
 After HonestCI:   unchanged or missing JUnit XML   → HCI003 / HCI001 → blocked
 ```
 
-Release status: public beta candidate. The source and bundled Action are ready for review; the npm package and `v0` tag are not published until human approval.
+Release status: public beta `v0.1.0-beta.1`. Install the Action from the immutable beta tag below. The npm package is not published yet.
 
 ## Five-minute Quick Start
 
@@ -33,10 +33,10 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The `v0` reference becomes available after the beta release is approved.
+Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. Pinning the immutable beta tag keeps the workflow reproducible.
 
 ```yaml
-- uses: f0909172434/honest-ci@v0
+- uses: f0909172434/honest-ci@v0.1.0-beta.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -110,6 +110,6 @@ HonestCI v1 supports GitHub Actions and JUnit XML on Ubuntu, Windows, and macOS.
 
 HonestCI verifies observable CI execution evidence. It does not prove that tests are sufficient, that assertions are meaningful, that all desired tests exist, or that a program is correct.
 
-Configuration: [docs/CONFIGURATION.md](docs/CONFIGURATION.md) · Security: [docs/SECURITY.md](docs/SECURITY.md) · Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+Configuration: [docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [Runner recipes](docs/RUNNER_RECIPES.md) · [Beta policy](docs/BETA_POLICY.md) · Security: [docs/SECURITY.md](docs/SECURITY.md) · Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 MIT License
