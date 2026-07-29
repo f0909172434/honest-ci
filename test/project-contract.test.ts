@@ -57,4 +57,15 @@ describe("public project contract", () => {
     expect(demo).toContain("HCI004_ZERO_TESTS");
     expect(demo).toContain("does not prove that any test suite is sufficient");
   });
+
+  it("covers every supported public-registry release endpoint", async () => {
+    const workflow = await readFile(".github/workflows/registry-smoke.yml", "utf8");
+    const smoke = await readFile("scripts/registry-smoke.mjs", "utf8");
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("os: [ubuntu-latest, macos-latest, windows-latest]");
+    expect(workflow).toContain("node: [20, 24]");
+    expect(workflow).toContain("npm run registry:smoke");
+    expect(smoke).toContain("https://registry.npmjs.org/");
+    expect(smoke).toContain("rigorgraph-evidence-bundle");
+  });
 });

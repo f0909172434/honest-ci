@@ -53,6 +53,7 @@
     "build": "npm run build:types && npm run build:cli && npm run build:action",
     "demo:verify": "node scripts/verify-launch-demo.mjs",
     "package:smoke": "node scripts/package-smoke.mjs",
+    "registry:smoke": "node scripts/registry-smoke.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
