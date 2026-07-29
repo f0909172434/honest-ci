@@ -4,16 +4,16 @@ import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 
 const readmes = ["README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md"];
-const rcCli = "npm install --save-dev honest-ci@next";
-const rcAction = "f0909172434/honest-ci@v1.0.0-rc.1";
+const stableCli = "npm install --save-dev honest-ci@1.0.0";
+const stableAction = "f0909172434/honest-ci@v1.0.0";
 
 describe("public project contract", () => {
   it.each(readmes)("keeps a complete Quick Start and limitations in %s", async (file) => {
     const source = await readFile(file, "utf8");
     expect(source).toContain("honest-ci.yml");
-    expect(source).toContain(rcAction);
+    expect(source).toContain(stableAction);
     expect(source).toContain("HCI106_BASELINE_UNAVAILABLE");
-    expect(source).toContain(rcCli);
+    expect(source).toContain(stableCli);
     expect(source).toContain("evidence-output");
     expect(source).toContain("docs/EVIDENCE_BUNDLES.md");
     expect(source).toContain("JUnit XML");
@@ -67,5 +67,19 @@ describe("public project contract", () => {
     expect(workflow).toContain("npm run registry:smoke");
     expect(smoke).toContain("https://registry.npmjs.org/");
     expect(smoke).toContain("rigorgraph-evidence-bundle");
+  });
+
+  it("keeps the stable package, runtime, and OIDC release contract aligned", async () => {
+    const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+    const version = await readFile("src/version.ts", "utf8");
+    const release = await readFile(".github/workflows/release.yml", "utf8");
+    expect(packageJson.version).toBe("1.0.0");
+    expect(version).toContain('VERSION = "1.0.0"');
+    expect(release).toContain("environment: npm");
+    expect(release).toContain("id-token: write");
+    expect(release).toContain("npm publish release/*.tgz --tag latest");
+    expect(await readFile("launch/RELEASE_NOTES-1.0.0.md", "utf8")).toContain(
+      "Node.js 20 and 24",
+    );
   });
 });

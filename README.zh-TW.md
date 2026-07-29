@@ -15,7 +15,7 @@ HonestCI 會包住測試命令、驗證本次新產生或變更的 JUnit 證據�
 加入後：JUnit XML 未更新或不存在         → HCI003 / HCI001 → 阻擋
 ```
 
-發布狀態：`v1.0.0-rc.1`。1.x 公開介面只做加法相容變更；只有 RC 的乾淨安裝與互通閘門通過後，才建立 npm `latest` 與 Action `v1`。
+發布狀態：`v1.0.0`。1.x 公開介面維持加法相容變更；可重現使用請固定 `v1.0.0`，moving `v1` 會跟隨最新的相容 1.x 版本。
 
 ## 五分鐘 Quick Start
 
@@ -40,7 +40,7 @@ workflows:
 在 checkout 與安裝依賴之後加入 Action，並把範例命令換成你的 JUnit 測試命令。完整 commit pin 可避免標籤移動時改變 workflow 內容。
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.0-rc.1
+- uses: f0909172434/honest-ci@v1.0.0
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -51,7 +51,7 @@ workflows:
 安裝固定版本的 CLI 資產。此命令會從 GitHub Releases 取得同一個 beta，不需要 npm registry 發布：
 
 ```console
-npm install --save-dev honest-ci@next
+npm install --save-dev honest-ci@1.0.0
 ```
 
 預設分支成功執行後，產生、檢查並提交基準：
@@ -88,7 +88,7 @@ Action 只需要 `contents: read`，會寫入 annotations 與 Job Summary，不�
 需要 Node.js 20 以上。
 
 ```console
-npm install --save-dev honest-ci@next
+npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml

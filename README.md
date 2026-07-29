@@ -15,7 +15,7 @@ Before HonestCI:  npm test || true                 → green
 After HonestCI:   unchanged or missing JUnit XML   → HCI003 / HCI001 → blocked
 ```
 
-Release status: `v1.0.0-rc.1`. The stable 1.x interfaces are additive; the moving `v1` Action tag and npm `latest` tag are created only after RC fresh-install and interoperability gates pass.
+Release status: `v1.0.0`. The stable 1.x interfaces are additive. Use immutable `v1.0.0` for reproducibility; the moving `v1` Action tag follows the latest compatible 1.x release.
 
 ## Five-minute Quick Start
 
@@ -37,10 +37,10 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The RC tag is immutable; production users may additionally pin its resolved commit SHA.
+Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The version tag is immutable; production users may additionally pin its resolved commit SHA.
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.0-rc.1
+- uses: f0909172434/honest-ci@v1.0.0
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -48,10 +48,10 @@ Add the Action after checkout and dependency installation. Replace the example c
     evidence-output: .honest-ci/evidence.json
 ```
 
-After the approved npm RC publish, install the release candidate from the `next` tag:
+Install the stable package from npm:
 
 ```console
-npm install --save-dev honest-ci@next
+npm install --save-dev honest-ci@1.0.0
 ```
 
 After a successful default-branch run, create and review the baseline:
@@ -88,7 +88,7 @@ See [finding codes](docs/FINDINGS.md) for the stable machine interface.
 Requires Node.js 20 or newer.
 
 ```console
-npm install --save-dev honest-ci@next
+npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml --evidence-output .honest-ci/evidence.json -- npm test
 npx honest-ci check --config honest-ci.yml

@@ -15,7 +15,7 @@ HonestCI はテストコマンドをラップし、今回生成または更新�
 導入後：JUnit XML が未更新または存在しない → HCI003 / HCI001 → ブロック
 ```
 
-リリース状況：`v1.0.0-rc.1`。1.x の公開インターフェースは追加的な互換変更のみです。RC のクリーンインストールと相互運用ゲートを通過した後に npm `latest` と Action `v1` を作成します。
+リリース状況：`v1.0.0`。1.x の公開インターフェースは前方互換な追加変更を維持します。再現可能な利用には `v1.0.0` を固定し、moving `v1` は最新の互換 1.x リリースに追従します。
 
 ## 5 分 Quick Start
 
@@ -40,7 +40,7 @@ workflows:
 checkout と依存関係のインストール後に Action を追加し、例のコマンドを利用中のランナーの JUnit コマンドに置き換えます。完全な commit pin により、タグが移動しても workflow の内容は変わりません。
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.0-rc.1
+- uses: f0909172434/honest-ci@v1.0.0
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -51,7 +51,7 @@ checkout と依存関係のインストール後に Action を追加し、例の
 バージョン固定の CLI アセットをインストールします。同じ beta を GitHub Releases から取得するため、npm registry での公開は不要です。
 
 ```console
-npm install --save-dev honest-ci@next
+npm install --save-dev honest-ci@1.0.0
 ```
 
 デフォルトブランチで成功した後、ベースラインを生成、確認、コミットします。
@@ -88,7 +88,7 @@ Action に必要な権限は `contents: read` のみです。annotations と Job
 Node.js 20 以降が必要です。
 
 ```console
-npm install --save-dev honest-ci@next
+npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
