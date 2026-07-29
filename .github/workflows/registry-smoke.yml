@@ -1,0 +1,33 @@
+name: Registry smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact npm version to install
+        required: true
+        default: "1.0.0-rc.1"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  fresh-install:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [20, 24]
+    runs-on: ${{ matrix.os }}
+    env:
+      HONEST_CI_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: https://registry.npmjs.org
+      - name: Install and exercise the public package
+        run: npm run registry:smoke
