@@ -11,7 +11,7 @@ HonestCI needs JUnit XML. It does not require a particular language or test fram
     node-version: 24
     cache: npm
 - run: npm ci
-- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
+- uses: f0909172434/honest-ci@v1.0.0-rc.1
   with:
     command: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
     config: honest-ci.yml
@@ -35,7 +35,7 @@ steps:
       node-version: 24
       cache: npm
   - run: npm ci
-  - uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
+  - uses: f0909172434/honest-ci@v1.0.0-rc.1
     with:
       command: npm test -- --ci --reporters=default --reporters=jest-junit
       config: honest-ci.yml
@@ -52,7 +52,7 @@ Do not add `--passWithNoTests`; HonestCI intentionally warns about it.
   with:
     python-version: "3.13"
 - run: python -m pip install -r requirements.txt
-- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
+- uses: f0909172434/honest-ci@v1.0.0-rc.1
   with:
     command: python -m pytest --junitxml=reports/junit.xml
     config: honest-ci.yml
@@ -70,7 +70,7 @@ Surefire normally writes JUnit-compatible XML under `target/surefire-reports/`:
     distribution: temurin
     java-version: "21"
     cache: maven
-- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
+- uses: f0909172434/honest-ci@v1.0.0-rc.1
   with:
     command: mvn --batch-mode test
     config: honest-ci.yml
@@ -83,4 +83,4 @@ Use `paths: [target/surefire-reports/*.xml]` and let HonestCI aggregate the file
 
 Run the test in its existing step, then use the Action without `command`. HonestCI will validate the report and emit `HCI107_FRESHNESS_UNVERIFIED` because a standalone check cannot prove which process created the file.
 
-Prefer wrapping the command when possible. After a successful default-branch run, generate and commit the baseline with `npx honest-ci baseline write` once the npm package is available, or use the bundled CLI from a source checkout during beta.
+Prefer wrapping the command when possible. After a successful default-branch run, generate and commit the baseline with `npx honest-ci baseline write`. During the RC, install `honest-ci@next`.

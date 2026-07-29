@@ -1,4 +1,5 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -40,6 +41,15 @@ describe("trusted pull request baseline", () => {
     };
     const result = await loadTrustedBaseline(config, root, "not-logged", options);
     expect(result.baseline?.reports.unit?.tests).toBe(1000);
+    expect(result.baselineArtifact).toMatchObject({
+      role: "baseline",
+      path: ".honest-ci/baseline.json",
+    });
+    expect(result.baselineArtifact?.sha256).not.toBe(
+      createHash("sha256")
+        .update(await readFile(path.join(root, ".honest-ci", "baseline.json")))
+        .digest("hex"),
+    );
     expect(getContent).toHaveBeenCalledWith(expect.objectContaining({ ref: "trusted-base-sha" }));
   });
 

@@ -59,7 +59,7 @@ function inspectWorkflow(value: unknown, file: string): Finding[] {
   return findings;
 }
 
-export async function lintWorkflows(config: HonestConfig, workspace: string): Promise<Finding[]> {
+export async function findWorkflowFiles(config: HonestConfig, workspace: string): Promise<string[]> {
   const files = await fg(config.workflows.paths, {
     absolute: true,
     cwd: workspace,
@@ -68,8 +68,12 @@ export async function lintWorkflows(config: HonestConfig, workspace: string): Pr
     onlyFiles: true,
     unique: true,
   });
+  return files.sort();
+}
+
+export async function lintWorkflows(config: HonestConfig, workspace: string): Promise<Finding[]> {
   const findings: Finding[] = [];
-  for (const file of files.sort()) {
+  for (const file of await findWorkflowFiles(config, workspace)) {
     if (!isInsideWorkspace(workspace, file)) throw new HonestCIInputError(`Workflow leaves the workspace: ${file}.`);
     const relative = toPosixPath(path.relative(workspace, file));
     let value: unknown;

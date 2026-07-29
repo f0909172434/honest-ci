@@ -74,12 +74,19 @@ reports:
 `, "utf8");
   await writeFile(path.join(temp, "reports", "junit.xml"), '<testsuite tests="1" failures="0" errors="0" skipped="0"/>\n', "utf8");
 
-  const checked = JSON.parse(runNpm(["exec", "--", "honest-ci", "check", "--config", "honest-ci.yml", "--format", "json"], temp));
+  const checked = JSON.parse(runNpm([
+    "exec", "--", "honest-ci", "check", "--config", "honest-ci.yml", "--format", "json",
+    "--evidence-output", ".honest-ci/evidence.json",
+  ], temp));
   if (checked.status !== "passed" || checked.totals?.tests !== 1) {
     throw new Error(`Installed CLI smoke check returned an unexpected result: ${JSON.stringify(checked)}`);
   }
+  const evidence = JSON.parse(await readFile(path.join(temp, ".honest-ci", "evidence.json"), "utf8"));
+  if (evidence.format !== "rigorgraph-evidence-bundle" || evidence.result?.status !== "passed") {
+    throw new Error(`Installed CLI emitted an invalid evidence bundle: ${JSON.stringify(evidence)}`);
+  }
 
-  console.log(`Package smoke passed: ${filename}, CLI ${version}, 1 JUnit test observed.`);
+  console.log(`Package smoke passed: ${filename}, CLI ${version}, 1 JUnit test observed and evidence bundle written.`);
 } finally {
   if (tarball) await rm(tarball, { force: true });
   await rm(temp, { recursive: true, force: true });

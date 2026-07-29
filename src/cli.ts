@@ -6,23 +6,43 @@ import { Command, CommanderError } from "commander";
 import { createBaseline, loadLocalBaseline, writeBaseline } from "./baseline.js";
 import { checkReports } from "./check.js";
 import { loadConfig } from "./config.js";
+import { writeEvidenceBundle } from "./evidence.js";
 import { lintWorkflows } from "./lint.js";
 import { parseFormat, printCheckResult, printLintResult, type OutputFormat } from "./output.js";
 import { snapshotReports } from "./report-files.js";
 import { runArgv } from "./runner.js";
 import { HonestCIInputError, type Finding } from "./types.js";
-
-const VERSION = "0.1.0-beta.1";
+import { VERSION } from "./version.js";
 
 interface CommonOptions {
   config: string;
+  evidenceOutput?: string;
   format: string;
 }
 
-function common(command: Command): Command {
-  return command
+function common(command: Command, evidence = false): Command {
+  const configured = command
     .option("--config <path>", "configuration file", "honest-ci.yml")
     .option("--format <format>", "pretty or json", "pretty");
+  return evidence
+    ? configured.option("--evidence-output <path>", "write a RigorGraph Evidence Bundle v1")
+    : configured;
+}
+
+async function evidence(
+  options: CommonOptions,
+  config: Awaited<ReturnType<typeof loadConfig>>,
+  result: Awaited<ReturnType<typeof checkReports>>,
+  workspace: string,
+): Promise<void> {
+  if (!options.evidenceOutput) return;
+  await writeEvidenceBundle({
+    config,
+    configPath: options.config,
+    result,
+    workspace,
+    outputPath: options.evidenceOutput,
+  });
 }
 
 function formatOf(options: CommonOptions): OutputFormat {
@@ -56,18 +76,19 @@ async function main(): Promise<void> {
       printLintResult(await lintWorkflows(config, workspace), formatOf(options));
     });
 
-  common(program.command("check").description("validate existing JUnit reports"))
+  common(program.command("check").description("validate existing JUnit reports"), true)
     .action(async (options: CommonOptions) => {
       const config = await loadConfig(options.config, workspace);
       const result = await checkReports(config, workspace, {
         baseline: await loadLocalBaseline(config, workspace),
         freshnessUnverified: true,
       });
+      await evidence(options, config, result, workspace);
       printCheckResult(result, formatOf(options));
       process.exitCode = result.status === "passed" ? 0 : 1;
     });
 
-  common(program.command("run").description("run a test command and prove its reports are fresh"))
+  common(program.command("run").description("run a test command and prove its reports are fresh"), true)
     .argument("<test-command...>", "command and arguments after --")
     .allowUnknownOption(true)
     .action(async (testCommand: string[], options: CommonOptions) => {
@@ -80,6 +101,7 @@ async function main(): Promise<void> {
         snapshots,
         initialFindings,
       });
+      await evidence(options, config, result, workspace);
       printCheckResult(result, formatOf(options));
       process.exitCode = result.status === "passed" ? 0 : 1;
     });

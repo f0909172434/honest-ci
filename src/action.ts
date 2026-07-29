@@ -2,6 +2,7 @@ import * as core from "@actions/core";
 
 import { checkReports } from "./check.js";
 import { loadConfig } from "./config.js";
+import { writeEvidenceBundle } from "./evidence.js";
 import { loadTrustedBaseline } from "./github-baseline.js";
 import { lintWorkflows } from "./lint.js";
 import { snapshotReports } from "./report-files.js";
@@ -27,7 +28,7 @@ function annotate(finding: Finding): void {
   else core.warning(finding.message, properties);
 }
 
-async function summary(result: CheckResult): Promise<void> {
+async function summary(result: CheckResult, evidencePath?: string): Promise<void> {
   if (!process.env.GITHUB_STEP_SUMMARY) return;
   const rows: Array<Array<{ data: string; header?: boolean }>> = [
     ["Report", "Tests", "Failures", "Errors", "Skipped", "Baseline", "Drop"].map((data) => ({ data, header: true })),
@@ -50,14 +51,21 @@ async function summary(result: CheckResult): Promise<void> {
   } else {
     core.summary.addRaw("\nNo findings.\n");
   }
+  if (evidencePath) {
+    core.summary.addHeading("Evidence bundle", 3)
+      .addCodeBlock(evidencePath)
+      .addRaw("The bundle records hashes and allowlisted provenance. It does not prove runner authenticity, test quality, or program correctness.\n");
+  }
   await core.summary.write();
 }
 
 async function main(): Promise<void> {
   const workspace = process.env.GITHUB_WORKSPACE ?? process.cwd();
-  const config = await loadConfig(core.getInput("config") || "honest-ci.yml", workspace);
+  const configPath = core.getInput("config") || "honest-ci.yml";
+  const config = await loadConfig(configPath, workspace);
   const command = core.getInput("command");
   const token = core.getInput("github-token");
+  const evidenceOutput = core.getInput("evidence-output");
   const baselineResult = await loadTrustedBaseline(config, workspace, token);
   const lintFindings = await lintWorkflows(config, workspace);
   let snapshots;
@@ -73,6 +81,19 @@ async function main(): Promise<void> {
     ...(snapshots ? { snapshots } : { freshnessUnverified: true }),
     initialFindings,
   });
+  const evidencePath = evidenceOutput
+    ? await writeEvidenceBundle({
+      config,
+      configPath,
+      result,
+      workspace,
+      outputPath: evidenceOutput,
+      includeWorkflows: true,
+      ...(baselineResult.baselineArtifact
+        ? { additionalArtifacts: [baselineResult.baselineArtifact] }
+        : {}),
+    })
+    : undefined;
 
   for (const finding of result.findings) annotate(finding);
   core.setOutput("tests", result.totals.tests);
@@ -82,7 +103,8 @@ async function main(): Promise<void> {
   core.setOutput("baseline-tests", result.baselineTests ?? "");
   core.setOutput("drop-percent", result.dropPercent ?? "");
   core.setOutput("warnings", result.findings.filter((finding) => finding.severity === "warning").length);
-  await summary(result);
+  if (evidencePath) core.setOutput("evidence-path", evidencePath);
+  await summary(result, evidencePath);
   if (result.status === "failed") core.setFailed("HonestCI found definite CI evidence problems.");
 }
 

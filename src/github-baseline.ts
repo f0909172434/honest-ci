@@ -1,12 +1,14 @@
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 
 import * as github from "@actions/github";
 
 import { loadLocalBaseline, parseBaseline } from "./baseline.js";
-import { type BaselineFile, type Finding, type HonestConfig } from "./types.js";
+import { type BaselineFile, type EvidenceArtifact, type Finding, type HonestConfig } from "./types.js";
 
 export interface TrustedBaselineResult {
   baseline: BaselineFile | null;
+  baselineArtifact?: EvidenceArtifact;
   findings: Finding[];
 }
 
@@ -54,8 +56,15 @@ export async function loadTrustedBaseline(
     if (Array.isArray(data) || data.type !== "file" || !("content" in data) || typeof data.content !== "string") {
       return unavailable("The trusted baseline path on the pull request base commit is not a readable file.");
     }
+    const content = Buffer.from(data.content, data.encoding === "base64" ? "base64" : "utf8");
     return {
-      baseline: parseBaseline(Buffer.from(data.content, data.encoding === "base64" ? "base64" : "utf8").toString("utf8")),
+      baseline: parseBaseline(content.toString("utf8")),
+      baselineArtifact: {
+        role: "baseline",
+        path: config.baseline.file.replaceAll("\\", "/"),
+        size: content.length,
+        sha256: createHash("sha256").update(content).digest("hex"),
+      },
       findings: [],
     };
   } catch (error) {
