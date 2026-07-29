@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0
+
+- Promote additive Evidence Bundle v1 output after RigorGraph interoperability tests.
+- Confirm public npm installs on Windows, Ubuntu, and macOS with Node.js 20 and 24.
+- Publish reproducible CLI and Action bundles with checksums, attestations, npm OIDC, and provenance.
+- Preserve exit codes, finding meanings, CLI JSON, Action inputs/outputs, and existing configuration semantics.
+
 ## 1.0.0-rc.1
 
 - Add RigorGraph Evidence Bundle v1 output to `run`, `check`, and the GitHub Action.
