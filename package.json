@@ -1,6 +1,6 @@
 {
   "name": "honest-ci",
-  "version": "0.1.0-beta.1",
+  "version": "1.0.0-rc.1",
   "description": "Make green CI mean the tests you expected actually ran.",
   "license": "MIT",
   "author": "f0909172434",
@@ -27,6 +27,10 @@
     "README.ja.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/f0909172434/honest-ci.git"

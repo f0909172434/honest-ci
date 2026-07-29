@@ -15,7 +15,7 @@ Before HonestCI:  npm test || true                 → green
 After HonestCI:   unchanged or missing JUnit XML   → HCI003 / HCI001 → blocked
 ```
 
-Release status: public beta `v0.1.0-beta.1`. The Action below is pinned to that release's full commit, and the CLI is available from the matching GitHub Release asset. The npm registry package is not published yet.
+Release status: `v1.0.0-rc.1`. The stable 1.x interfaces are additive; the moving `v1` Action tag and npm `latest` tag are created only after RC fresh-install and interoperability gates pass.
 
 ## Five-minute Quick Start
 
@@ -37,20 +37,21 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The full commit pin keeps the workflow fixed even if a tag is moved.
+Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The RC tag is immutable; production users may additionally pin its resolved commit SHA.
 
 ```yaml
-- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
+- uses: f0909172434/honest-ci@v1.0.0-rc.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
     github-token: ${{ github.token }}
+    evidence-output: .honest-ci/evidence.json
 ```
 
-Install the versioned CLI asset. This uses the same beta from GitHub Releases and does not require an npm registry release:
+After the approved npm RC publish, install the release candidate from the `next` tag:
 
 ```console
-npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
+npm install --save-dev honest-ci@next
 ```
 
 After a successful default-branch run, create and review the baseline:
@@ -87,14 +88,29 @@ See [finding codes](docs/FINDINGS.md) for the stable machine interface.
 Requires Node.js 20 or newer.
 
 ```console
-npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
+npm install --save-dev honest-ci@next
 npx honest-ci lint
-npx honest-ci run --config honest-ci.yml -- npm test
+npx honest-ci run --config honest-ci.yml --evidence-output .honest-ci/evidence.json -- npm test
 npx honest-ci check --config honest-ci.yml
 npx honest-ci baseline write --config honest-ci.yml
 ```
 
 Use `--format pretty` for people or `--format json` for automation. Exit status is 0 for pass, 1 for definite findings, and 2 for invalid input or configuration.
+
+## Evidence Bundle v1
+
+`run` and `check` accept `--evidence-output <relative-path>`. The GitHub Action accepts the matching `evidence-output` input and returns `evidence-path`; upload is intentionally left to an explicit `actions/upload-artifact` step:
+
+```yaml
+- name: Upload HonestCI evidence
+  if: always()
+  uses: actions/upload-artifact@v7
+  with:
+    name: honest-ci-evidence
+    path: .honest-ci/evidence.json
+```
+
+The bundle contains the result, configuration/report/baseline/workflow hashes, and allowlisted GitHub provenance. It contains no raw JUnit, test names, logs, arbitrary environment variables, or secrets. Hashes preserve observed bytes; they do not prove runner authenticity, test quality, or correctness. See [Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md).
 
 ## Reproducible false-green demo
 
@@ -120,6 +136,6 @@ HonestCI v1 supports GitHub Actions and JUnit XML on Ubuntu, Windows, and macOS.
 
 HonestCI verifies observable CI execution evidence. It does not prove that tests are sufficient, that assertions are meaningful, that all desired tests exist, or that a program is correct.
 
-Configuration: [docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [Runner recipes](docs/RUNNER_RECIPES.md) · [Beta policy](docs/BETA_POLICY.md) · Security: [docs/SECURITY.md](docs/SECURITY.md) · Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+Configuration: [docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [Runner recipes](docs/RUNNER_RECIPES.md) · [Release policy](docs/RELEASE_POLICY.md) · Security: [docs/SECURITY.md](docs/SECURITY.md) · Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 MIT License

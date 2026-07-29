@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: node scripts/check-release-version.mjs
+      - run: npm ci
+      - run: npm run verify
+      - run: git diff --exit-code -- dist
+      - run: npm audit --omit=dev
+      - run: mkdir release
+      - run: npm pack --ignore-scripts --pack-destination release
+      - name: Write checksums
+        run: cd release && sha256sum * > SHA256SUMS
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: "release/*"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-dist
+          path: release/*
+          if-no-files-found: error
+
+  publish-npm:
+    if: ${{ !contains(github.ref_name, '-') }}
+    needs: build
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-dist
+          path: release
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+      - run: npm publish release/*.tgz --tag latest
+
+  github-release:
+    if: ${{ always() && needs.build.result == 'success' && (contains(github.ref_name, '-') || needs.publish-npm.result == 'success') }}
+    needs: [build, publish-npm]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-dist
+          path: release
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          flags=()
+          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "${GITHUB_REF_NAME}" release/* "${flags[@]}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "HonestCI ${GITHUB_REF_NAME#v}" \
+            --generate-notes

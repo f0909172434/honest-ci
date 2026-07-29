@@ -4,16 +4,18 @@ import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 
 const readmes = ["README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md"];
-const betaCliTarball = "https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz";
-const betaAction = "f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8";
+const rcCli = "npm install --save-dev honest-ci@next";
+const rcAction = "f0909172434/honest-ci@v1.0.0-rc.1";
 
 describe("public project contract", () => {
   it.each(readmes)("keeps a complete Quick Start and limitations in %s", async (file) => {
     const source = await readFile(file, "utf8");
     expect(source).toContain("honest-ci.yml");
-    expect(source).toContain(betaAction);
+    expect(source).toContain(rcAction);
     expect(source).toContain("HCI106_BASELINE_UNAVAILABLE");
-    expect(source).toContain(`npm install --save-dev ${betaCliTarball}`);
+    expect(source).toContain(rcCli);
+    expect(source).toContain("evidence-output");
+    expect(source).toContain("docs/EVIDENCE_BUNDLES.md");
     expect(source).toContain("JUnit XML");
     expect(source).toContain("GitHub Actions");
   });
@@ -21,9 +23,12 @@ describe("public project contract", () => {
   it("declares every required Action input and output", async () => {
     const metadata = parse(await readFile("action.yml", "utf8")) as Record<string, any>;
     expect(metadata.runs).toEqual({ using: "node24", main: "dist/action/index.js" });
-    expect(Object.keys(metadata.inputs)).toEqual(expect.arrayContaining(["command", "config", "github-token"]));
+    expect(Object.keys(metadata.inputs)).toEqual(expect.arrayContaining([
+      "command", "config", "github-token", "evidence-output",
+    ]));
     expect(Object.keys(metadata.outputs)).toEqual(expect.arrayContaining([
       "tests", "failures", "errors", "skipped", "baseline-tests", "drop-percent", "warnings",
+      "evidence-path",
     ]));
   });
 
@@ -35,10 +40,10 @@ describe("public project contract", () => {
     for (const code of codes) expect(docs).toContain(code);
   });
 
-  it("keeps beta release gates independent from external tester counts", async () => {
-    const policy = await readFile("docs/BETA_POLICY.md", "utf8");
+  it("keeps release gates independent from external tester counts", async () => {
+    const policy = await readFile("docs/RELEASE_POLICY.md", "utf8");
     expect(policy).toContain("External use is evidence, not permission");
-    expect(policy).toContain("A missing external tester does not fail a gate");
+    expect(policy).toContain("No fixed tester count blocks development or release");
   });
 
   it("provides runnable JUnit recipes for common ecosystems", async () => {

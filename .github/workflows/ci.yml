@@ -27,11 +27,23 @@ jobs:
       - run: npm run typecheck
       - run: npm run build
       - name: Verify test execution evidence with HonestCI
+        id: honest-ci
         uses: ./
         with:
           command: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
           config: honest-ci.yml
           github-token: ${{ github.token }}
+          evidence-output: .honest-ci/evidence.json
+      - name: Verify evidence output
+        shell: bash
+        run: test "${{ steps.honest-ci.outputs.evidence-path }}" = ".honest-ci/evidence.json" && test -f .honest-ci/evidence.json
+      - name: Upload HonestCI evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: honest-ci-evidence-${{ matrix.os }}-${{ matrix.node }}
+          path: .honest-ci/evidence.json
+          if-no-files-found: error
 
   package:
     runs-on: ubuntu-latest

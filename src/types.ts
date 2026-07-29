@@ -87,6 +87,37 @@ export interface FileSignature {
   mtimeMs: number;
 }
 
+export interface EvidenceArtifact {
+  role: "config" | "report" | "baseline" | "workflow";
+  path: string;
+  size: number;
+  sha256: string;
+}
+
+export interface EvidenceProvenance {
+  repository?: string;
+  commit?: string;
+  ref?: string;
+  workflow_ref?: string;
+  run_id?: string;
+  run_attempt?: number;
+  event?: string;
+}
+
+export interface EvidenceBundle {
+  format: "rigorgraph-evidence-bundle";
+  schema_version: 1;
+  profile: "honest-ci/check-result-v1";
+  evidence_type: "computation";
+  title: string;
+  scope: string;
+  created_at: string;
+  producer: { name: "honest-ci"; version: string };
+  provenance?: EvidenceProvenance;
+  artifacts: EvidenceArtifact[];
+  result: CheckResult;
+}
+
 export type ReportSnapshots = Map<string, Map<string, FileSignature>>;
 
 export class HonestCIInputError extends Error {

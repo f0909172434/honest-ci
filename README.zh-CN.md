@@ -15,7 +15,7 @@ HonestCI 会包裹测试命令、验证本次新生成或变更的 JUnit 证据�
 加入后：JUnit XML 未更新或不存在         → HCI003 / HCI001 → 阻止
 ```
 
-发布状态：公开 beta `v0.1.0-beta.1`。下方 Action 固定到该版本的完整 commit，CLI 则使用同版本的 GitHub Release 资产；npm registry 软件包尚未发布。
+发布状态：`v1.0.0-rc.1`。1.x 公开接口只做加法兼容变更；只有 RC 的干净安装与互通门通过后，才建立 npm `latest` 与 Action `v1`。
 
 ## 五分钟 Quick Start
 
@@ -40,17 +40,18 @@ workflows:
 在 checkout 和依赖安装步骤之后加入 Action，并将示例命令替换为你的 JUnit 测试命令。完整 commit pin 可避免标签移动时改变 workflow 内容。
 
 ```yaml
-- uses: f0909172434/honest-ci@f9c3926912d33ccc070ccfff6c956759e0f687f8 # v0.1.0-beta.1
+- uses: f0909172434/honest-ci@v1.0.0-rc.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
     github-token: ${{ github.token }}
+    evidence-output: .honest-ci/evidence.json
 ```
 
 安装固定版本的 CLI 资产。此命令从 GitHub Releases 获取同一个 beta，不需要 npm registry 发布：
 
 ```console
-npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
+npm install --save-dev honest-ci@next
 ```
 
 默认分支成功运行后，生成、检查并提交基准：
@@ -87,7 +88,7 @@ Action 只需要 `contents: read`，会写入 annotations 和 Job Summary，不�
 需要 Node.js 20 或更高版本。
 
 ```console
-npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
+npm install --save-dev honest-ci@next
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
@@ -120,6 +121,10 @@ HonestCI v1 支持 GitHub Actions、JUnit XML、Ubuntu、Windows 和 macOS。它
 
 HonestCI 只验证可观察的 CI 运行证据。它不证明测试充分、断言有意义、所有应有测试都存在，也不证明程序正确。
 
-配置：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [测试工具示例](docs/RUNNER_RECIPES.md) · [Beta 发布政策](docs/BETA_POLICY.md) · 安全：[docs/SECURITY.md](docs/SECURITY.md) · 贡献：[CONTRIBUTING.md](CONTRIBUTING.md)
+配置：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [测试工具示例](docs/RUNNER_RECIPES.md) · [发布政策](docs/RELEASE_POLICY.md) · 安全：[docs/SECURITY.md](docs/SECURITY.md) · 贡献：[CONTRIBUTING.md](CONTRIBUTING.md)
+
+## Evidence Bundle v1
+
+`run` 与 `check` 可用 `--evidence-output .honest-ci/evidence.json` 生成 RigorGraph Evidence Bundle v1；Action 使用同名 input 并返回 `evidence-path`。证据包只包含结果摘要、配置／report／baseline／workflow 哈希与 allowlist GitHub provenance，不包含原始 JUnit、测试名称、log、任意环境变量或秘密。哈希保存观测到的 bytes，不证明 runner 身份、测试质量或程序正确性。详见 [Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md) 与 [发布政策](docs/RELEASE_POLICY.md)。
 
 MIT License

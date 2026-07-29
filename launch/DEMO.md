@@ -41,12 +41,12 @@ npm run demo:verify
 
 The verifier checks the before exit is 0, the after exit is 1, `HCI004_ZERO_TESTS` is present, and the result is not attributed to stale-report evidence.
 
-## Copyable beta Quick Start
+## Copyable release-candidate Quick Start
 
 The four README files contain the complete workflow and configuration. Until an npm registry package is published, install the existing versioned GitHub Release asset:
 
 ```console
-npm install --save-dev https://github.com/f0909172434/honest-ci/releases/download/v0.1.0-beta.1/honest-ci-0.1.0-beta.1.tgz
+npm install --save-dev honest-ci@next
 npx honest-ci baseline write --config honest-ci.yml
 ```
 
