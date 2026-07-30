@@ -76,9 +76,11 @@ describe("public project contract", () => {
     expect(packageJson.version).toBe("1.0.0");
     expect(version).toContain('VERSION = "1.0.0"');
     expect(release).toContain('      - "v*.*.*"');
+    expect(release).toContain("workflow_dispatch:");
+    expect(release).toContain("ref: ${{ inputs.release_ref || github.ref_name }}");
     expect(release).toContain("environment: npm");
     expect(release).toContain("id-token: write");
-    expect(release).toContain("npm publish release/*.tgz --tag latest");
+    expect(release).toContain("npm publish ./release/*.tgz --tag latest");
     expect(await readFile("launch/RELEASE_NOTES-1.0.0.md", "utf8")).toContain(
       "Node.js 20 and 24",
     );
