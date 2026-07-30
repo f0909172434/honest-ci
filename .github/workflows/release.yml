@@ -37,7 +37,12 @@ jobs:
           INPUT_RELEASE_REF: ${{ inputs.release_ref }}
         run: |
           release_ref="${INPUT_RELEASE_REF:-${GITHUB_REF_NAME}}"
-          node scripts/check-release-version.mjs "${release_ref}"
+          package_version="$(node -p "JSON.parse(require('fs').readFileSync('package.json', 'utf8')).version")"
+          expected_ref="v${package_version}"
+          if [[ "${release_ref}" != "${expected_ref}" ]]; then
+            echo "Release ref ${release_ref} does not match package version ${package_version}." >&2
+            exit 1
+          fi
           echo "release_ref=${release_ref}" >> "${GITHUB_OUTPUT}"
       - run: npm ci
       - run: npm run verify
