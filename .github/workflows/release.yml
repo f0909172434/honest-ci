@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      release_ref:
+        description: Existing immutable release tag to rebuild
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -11,17 +17,28 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      release_ref: ${{ steps.release.outputs.release_ref }}
     permissions:
       contents: read
       id-token: write
       attestations: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.release_ref || github.ref_name }}
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
           cache: npm
-      - run: node scripts/check-release-version.mjs
+      - name: Verify release ref
+        id: release
+        env:
+          INPUT_RELEASE_REF: ${{ inputs.release_ref }}
+        run: |
+          release_ref="${INPUT_RELEASE_REF:-${GITHUB_REF_NAME}}"
+          node scripts/check-release-version.mjs "${release_ref}"
+          echo "release_ref=${release_ref}" >> "${GITHUB_OUTPUT}"
       - run: npm ci
       - run: npm run verify
       - run: git diff --exit-code -- dist
@@ -40,7 +57,7 @@ jobs:
           if-no-files-found: error
 
   publish-npm:
-    if: ${{ !contains(github.ref_name, '-') }}
+    if: ${{ !contains(needs.build.outputs.release_ref, '-') }}
     needs: build
     runs-on: ubuntu-latest
     environment: npm
@@ -56,10 +73,10 @@ jobs:
         with:
           node-version: "24"
           registry-url: https://registry.npmjs.org
-      - run: npm publish release/*.tgz --tag latest
+      - run: npm publish ./release/*.tgz --tag latest
 
   github-release:
-    if: ${{ always() && needs.build.result == 'success' && (contains(github.ref_name, '-') || needs.publish-npm.result == 'success') }}
+    if: ${{ always() && needs.build.result == 'success' && (contains(needs.build.outputs.release_ref, '-') || needs.publish-npm.result == 'success') }}
     needs: [build, publish-npm]
     runs-on: ubuntu-latest
     permissions:
@@ -72,10 +89,11 @@ jobs:
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_REF: ${{ needs.build.outputs.release_ref }}
         run: |
           flags=()
-          if [[ "${GITHUB_REF_NAME}" == *-* ]]; then flags+=(--prerelease); fi
-          gh release create "${GITHUB_REF_NAME}" release/* "${flags[@]}" \
+          if [[ "${RELEASE_REF}" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "${RELEASE_REF}" release/* "${flags[@]}" \
             --repo "${GITHUB_REPOSITORY}" \
-            --title "HonestCI ${GITHUB_REF_NAME#v}" \
+            --title "HonestCI ${RELEASE_REF#v}" \
             --generate-notes
