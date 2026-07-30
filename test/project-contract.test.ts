@@ -75,6 +75,7 @@ describe("public project contract", () => {
     const release = await readFile(".github/workflows/release.yml", "utf8");
     expect(packageJson.version).toBe("1.0.0");
     expect(version).toContain('VERSION = "1.0.0"');
+    expect(release).toContain('      - "v*.*.*"');
     expect(release).toContain("environment: npm");
     expect(release).toContain("id-token: write");
     expect(release).toContain("npm publish release/*.tgz --tag latest");
