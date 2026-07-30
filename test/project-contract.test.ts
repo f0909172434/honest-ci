@@ -78,6 +78,7 @@ describe("public project contract", () => {
     expect(release).toContain('      - "v*.*.*"');
     expect(release).toContain("workflow_dispatch:");
     expect(release).toContain("ref: ${{ inputs.release_ref || github.ref_name }}");
+    expect(release).toContain('expected_ref="v${package_version}"');
     expect(release).toContain("environment: npm");
     expect(release).toContain("id-token: write");
     expect(release).toContain("npm publish ./release/*.tgz --tag latest");
