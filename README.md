@@ -2,20 +2,35 @@
 
 [English](README.md) · [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
-Make green CI mean the tests you expected actually ran.
+[![CI](https://github.com/f0909172434/honest-ci/actions/workflows/ci.yml/badge.svg)](https://github.com/f0909172434/honest-ci/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/honest-ci)](https://www.npmjs.com/package/honest-ci)
+[![license](https://img.shields.io/github/license/f0909172434/honest-ci)](LICENSE)
+[Security policy](SECURITY.md)
 
-HonestCI wraps a test command, verifies fresh JUnit evidence, compares the observed test count with a trusted default-branch baseline, and warns about suspicious GitHub Actions patterns.
+**Make green CI mean the tests you expected actually ran.**
 
-![Reproducible false-green run before and after HonestCI](launch/assets/false-green-before-after.png)
+HonestCI wraps a test command, verifies fresh JUnit XML evidence, compares the
+observed test count with a trusted default-branch baseline, and warns about
+suspicious GitHub Actions patterns.
 
-[Reproduce the before/after demo](launch/DEMO.md): the same zero-test runner exits 0 alone and is blocked with `HCI004_ZERO_TESTS` when HonestCI checks its JUnit evidence.
+![A reproducible false-green run before and after HonestCI](launch/assets/false-green-before-after.png)
+
+The [reproducible demo](launch/DEMO.md) uses the same zero-test runner twice:
+it exits successfully on its own, then HonestCI blocks it with
+`HCI004_ZERO_TESTS`.
 
 ```text
-Before HonestCI:  npm test || true                 → green
-After HonestCI:   unchanged or missing JUnit XML   → HCI003 / HCI001 → blocked
+Ordinary runner:  npm test || true                 -> green
+With HonestCI:    missing, stale, or empty JUnit   -> finding -> blocked
 ```
 
-Release status: `v1.0.0`. The stable 1.x interfaces are additive. Use immutable `v1.0.0` for reproducibility; the moving `v1` Action tag follows the latest compatible 1.x release.
+HonestCI complements test reporters. A reporter makes results readable;
+HonestCI checks whether the expected evidence is fresh and whether the observed
+test count still matches a trusted baseline. You can use both in the same job.
+
+Release status: `v1.0.0`. Stable 1.x interfaces are additive. Use immutable
+`v1.0.0` for reproducibility; the moving `v1` Action tag follows the latest
+compatible 1.x release.
 
 ## Five-minute Quick Start
 
@@ -37,7 +52,8 @@ workflows:
   paths: [.github/workflows/*.yml]
 ```
 
-Add the Action after checkout and dependency installation. Replace the example command with the JUnit command for your runner. The version tag is immutable; production users may additionally pin its resolved commit SHA.
+Add the Action after checkout and dependency installation. Replace the example
+command with the JUnit command for your runner:
 
 ```yaml
 - uses: f0909172434/honest-ci@v1.0.0
@@ -48,44 +64,48 @@ Add the Action after checkout and dependency installation. Replace the example c
     evidence-output: .honest-ci/evidence.json
 ```
 
-Install the stable package from npm:
-
-```console
-npm install --save-dev honest-ci@1.0.0
-```
+The Action needs only `contents: read`. It writes annotations and a Job Summary
+and does not comment on pull requests.
 
 After a successful default-branch run, create and review the baseline:
 
 ```console
+npm install --save-dev honest-ci@1.0.0
 npx honest-ci baseline write --config honest-ci.yml
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
 
-The Action needs only `contents: read`. It writes annotations and a Job Summary, and does not comment on pull requests.
+Runner-specific JUnit commands are available for
+[Vitest, Jest, pytest, and Maven](docs/RUNNER_RECIPES.md).
 
 ## What it catches
 
 Definite, observable problems fail the run:
 
-- The wrapped command returned nonzero.
-- A required report is missing, malformed, unsafe, or unchanged.
-- Zero tests ran, the configured minimum was missed, or failures/errors exist.
-- The test count fell beyond the committed baseline threshold.
-- The skipped ratio exceeded an explicitly configured limit.
+- the wrapped command returned nonzero;
+- a required report is missing, malformed, unsafe, or unchanged;
+- zero tests ran, the configured minimum was missed, or failures/errors exist;
+- the test count fell beyond the committed baseline threshold; or
+- the skipped ratio exceeded an explicitly configured limit.
 
-Heuristics remain warnings:
+Heuristics remain warnings, including `continue-on-error: true`, `|| true`,
+forced `exit 0`, Jest/Vitest `--passWithNoTests`, and dynamic conditions that
+may skip a test-like job or step. See the stable [finding codes](docs/FINDINGS.md).
 
-- `continue-on-error: true`
-- `|| true` or forced `exit 0`
-- Jest/Vitest `--passWithNoTests`
-- Dynamic conditions that may skip a test-like job or step
+## When to use HonestCI
 
-See [finding codes](docs/FINDINGS.md) for the stable machine interface.
+Use it when a GitHub Actions job already produces JUnit XML and a green run
+should be backed by observable execution evidence. It is especially useful
+when test counts should not silently drop on a pull request.
+
+HonestCI is not the right tool for coverage analysis, flaky-test analytics,
+hosted dashboards, GitLab/CircleCI workflows, or proving that assertions are
+meaningful. Those remain explicit non-goals in 1.x.
 
 ## CLI
 
-Requires Node.js 20 or newer.
+HonestCI requires Node.js 20 or newer.
 
 ```console
 npm install --save-dev honest-ci@1.0.0
@@ -95,47 +115,66 @@ npx honest-ci check --config honest-ci.yml
 npx honest-ci baseline write --config honest-ci.yml
 ```
 
-Use `--format pretty` for people or `--format json` for automation. Exit status is 0 for pass, 1 for definite findings, and 2 for invalid input or configuration.
+Use `--format pretty` for people or `--format json` for automation. Exit status
+is 0 for pass, 1 for definite findings, and 2 for invalid input or configuration.
 
 ## Evidence Bundle v1
 
-`run` and `check` accept `--evidence-output <relative-path>`. The GitHub Action accepts the matching `evidence-output` input and returns `evidence-path`; upload is intentionally left to an explicit `actions/upload-artifact` step:
+`run` and `check` accept `--evidence-output <relative-path>`. The GitHub Action
+accepts the same input and returns `evidence-path`. Upload remains an explicit
+workflow choice:
 
 ```yaml
 - name: Upload HonestCI evidence
   if: always()
-  uses: actions/upload-artifact@v7
+  uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
   with:
     name: honest-ci-evidence
     path: .honest-ci/evidence.json
 ```
 
-The bundle contains the result, configuration/report/baseline/workflow hashes, and allowlisted GitHub provenance. It contains no raw JUnit, test names, logs, arbitrary environment variables, or secrets. Hashes preserve observed bytes; they do not prove runner authenticity, test quality, or correctness. See [Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md).
+The bundle contains the result, hashes of the configuration/report/baseline/
+workflow, and allowlisted GitHub provenance. It contains no raw JUnit, test
+names, logs, arbitrary environment variables, or secrets. Hashes preserve
+observed bytes; they do not prove runner authenticity, test quality, or
+correctness. See [Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md).
 
-## Reproducible false-green demo
-
-From a source checkout:
+## Reproduce the false-green check
 
 ```console
 npm ci
 npm run build
-node dist/cli/index.js lint --config demo/false-green/honest-ci.yml
-node dist/cli/index.js check --config demo/false-green/honest-ci.yml
+npm run demo:verify
 node dist/cli/index.js check --config demo/healthy/honest-ci.yml
 ```
 
-The first command warns about four common workflow patterns. The second fails because the observable JUnit report contains zero tests. The healthy fixture has no hard finding. See [demo details](demo/README.md).
+The demo proves that the fixture is detected; it does not prove that HonestCI
+finds every possible CI defect.
 
 ## Trusted baselines
 
-On a pull request, the Action fetches `.honest-ci/baseline.json` from the base commit through the GitHub API. A pull request cannot lower its own comparison target by editing the workspace copy. If a fork lacks permission to fetch the baseline, HonestCI keeps the fixed minimum checks and emits `HCI106_BASELINE_UNAVAILABLE`.
+On a pull request, the Action fetches `.honest-ci/baseline.json` from the base
+commit through the GitHub API. A pull request cannot lower its own comparison
+target by editing the workspace copy. If a fork cannot fetch the baseline,
+HonestCI keeps its fixed minimum checks and emits
+`HCI106_BASELINE_UNAVAILABLE`.
 
-## Scope and limits
+## Scope and documentation
 
-HonestCI v1 supports GitHub Actions and JUnit XML on Ubuntu, Windows, and macOS. It does not execute workflow YAML, provide a hosted service, analyze coverage, support GitLab/CircleCI/TRX, call an AI API, or post pull request comments.
+HonestCI v1 supports GitHub Actions and JUnit XML on Ubuntu, Windows, and
+macOS. It does not execute workflow YAML, provide a hosted service, analyze
+coverage, support GitLab/CircleCI/TRX, call an AI API, or post pull request
+comments.
 
-HonestCI verifies observable CI execution evidence. It does not prove that tests are sufficient, that assertions are meaningful, that all desired tests exist, or that a program is correct.
+HonestCI verifies observable CI execution evidence. It does not prove that
+tests are sufficient, that assertions are meaningful, that all desired tests
+exist, or that a program is correct.
 
-Configuration: [docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [Runner recipes](docs/RUNNER_RECIPES.md) · [Release policy](docs/RELEASE_POLICY.md) · Security: [docs/SECURITY.md](docs/SECURITY.md) · Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+[Configuration](docs/CONFIGURATION.md) ·
+[Runner recipes](docs/RUNNER_RECIPES.md) ·
+[Release policy](docs/RELEASE_POLICY.md) ·
+[Security](SECURITY.md) ·
+[Threat model](docs/THREAT_MODEL.md) ·
+[Contributing](CONTRIBUTING.md)
 
-MIT License
+MIT License.

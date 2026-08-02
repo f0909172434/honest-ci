@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
@@ -85,5 +85,46 @@ describe("public project contract", () => {
     expect(await readFile("launch/RELEASE_NOTES-1.0.0.md", "utf8")).toContain(
       "Node.js 20 and 24",
     );
+  });
+
+  it("publishes one canonical security policy and an explicit threat model", async () => {
+    const policy = await readFile("SECURITY.md", "utf8");
+    const threatModel = await readFile("docs/THREAT_MODEL.md", "utf8");
+    expect(policy).toContain("Private vulnerability reporting");
+    expect(policy).toContain("Automated dependency, static-analysis, or contextual security scans");
+    expect(threatModel).toContain("Trust boundaries");
+    expect(threatModel).toContain("does not sandbox commands");
+  });
+
+  it("pins remote workflow Actions and exposes one stable CI gate", async () => {
+    const directory = ".github/workflows";
+    const files = (await readdir(directory)).filter((file) => file.endsWith(".yml"));
+    const remoteUse = /^\s*-?\s*uses:\s+([^./\s][^@\s]+)@([^\s#]+)/gm;
+    for (const file of files) {
+      const workflow = await readFile(`${directory}/${file}`, "utf8");
+      for (const match of workflow.matchAll(remoteUse)) {
+        expect(match[2], `${file}: ${match[0]}`).toMatch(/^[0-9a-f]{40}$/);
+      }
+    }
+    const ci = await readFile(`${directory}/ci.yml`, "utf8");
+    expect(ci).toContain("ci-gate:");
+    expect(ci).toContain("needs: [verify, package]");
+  });
+
+  it("pins official Actions in copy-paste documentation", async () => {
+    const actionUse = /uses:\s+(actions\/[^@\s]+)@([^\s#]+)/g;
+    for (const file of ["README.md", "docs/RUNNER_RECIPES.md"]) {
+      const source = await readFile(file, "utf8");
+      for (const match of source.matchAll(actionUse)) {
+        expect(match[2], `${file}: ${match[0]}`).toMatch(/^[0-9a-f]{40}$/);
+      }
+    }
+  });
+
+  it("uses the canonical public author in package and Action metadata", async () => {
+    const packageJson = JSON.parse(await readFile("package.json", "utf8"));
+    const action = parse(await readFile("action.yml", "utf8")) as Record<string, any>;
+    expect(packageJson.author).toBe("Wang Chih Kai");
+    expect(action.author).toBe("Wang Chih Kai");
   });
 });

@@ -121,7 +121,7 @@ HonestCI v1 支持 GitHub Actions、JUnit XML、Ubuntu、Windows 和 macOS。它
 
 HonestCI 只验证可观察的 CI 运行证据。它不证明测试充分、断言有意义、所有应有测试都存在，也不证明程序正确。
 
-配置：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [测试工具示例](docs/RUNNER_RECIPES.md) · [发布政策](docs/RELEASE_POLICY.md) · 安全：[docs/SECURITY.md](docs/SECURITY.md) · 贡献：[CONTRIBUTING.md](CONTRIBUTING.md)
+配置：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [测试工具示例](docs/RUNNER_RECIPES.md) · [发布政策](docs/RELEASE_POLICY.md) · 安全：[SECURITY.md](SECURITY.md) · [威胁模型](docs/THREAT_MODEL.md) · 贡献：[CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Evidence Bundle v1
 

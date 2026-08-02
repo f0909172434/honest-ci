@@ -1,5 +1,5 @@
 name: HonestCI
-author: f0909172434
+author: Wang Chih Kai
 description: Make green CI mean the tests you expected actually ran.
 inputs:
   command:
