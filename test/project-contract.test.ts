@@ -82,6 +82,9 @@ describe("public project contract", () => {
     expect(release).toContain("environment: npm");
     expect(release).toContain("id-token: write");
     expect(release).toContain("npm publish ./release/*.tgz --tag latest");
+    expect(release).toContain('if [[ "${RELEASE_REF}" != *-* ]]');
+    expect(release).toContain('major_alias="v${release_version%%.*}"');
+    expect(release).toContain('git/refs/tags/${major_alias}');
     expect(await readFile("launch/RELEASE_NOTES-1.0.0.md", "utf8")).toContain(
       "Node.js 20 and 24",
     );

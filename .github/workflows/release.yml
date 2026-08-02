@@ -103,3 +103,19 @@ jobs:
             --repo "${GITHUB_REPOSITORY}" \
             --title "HonestCI ${RELEASE_REF#v}" \
             --generate-notes
+          if [[ "${RELEASE_REF}" != *-* ]]; then
+            release_object="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${RELEASE_REF}" --jq '.object.type + " " + .object.sha')"
+            read -r object_type release_sha <<< "${release_object}"
+            if [[ "${object_type}" == "tag" ]]; then
+              release_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/tags/${release_sha}" --jq '.object.sha')"
+            fi
+            release_version="${RELEASE_REF#v}"
+            major_alias="v${release_version%%.*}"
+            if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${major_alias}" --silent; then
+              gh api --method PATCH "repos/${GITHUB_REPOSITORY}/git/refs/tags/${major_alias}" \
+                -f sha="${release_sha}" -F force=true --silent
+            else
+              gh api --method POST "repos/${GITHUB_REPOSITORY}/git/refs" \
+                -f ref="refs/tags/${major_alias}" -f sha="${release_sha}" --silent
+            fi
+          fi
