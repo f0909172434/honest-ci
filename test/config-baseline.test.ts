@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -114,7 +114,7 @@ reports:
     const baseline = createBaseline([], "2026-01-01T00:00:00.000Z");
 
     const written = await writeBaseline(loaded, root, baseline);
-    expect(written).toBe(path.join(root, ".honest-ci", "baseline.json"));
+    expect(written).toBe(await realpath(path.join(root, ".honest-ci", "baseline.json")));
     expect(parseBaseline(await readFile(written, "utf8"))).toEqual(baseline);
   });
 
