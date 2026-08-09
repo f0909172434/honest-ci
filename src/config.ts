@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { parse } from "yaml";
 
-import { assertRelativeWorkspacePath, isInsideWorkspace, resolveInsideWorkspace } from "./paths.js";
+import { assertRelativeWorkspacePath, resolveExistingInsideWorkspace } from "./paths.js";
 import { HonestCIInputError, type HonestConfig, type ReportConfig } from "./types.js";
 
 function record(value: unknown, label: string): Record<string, unknown> {
@@ -63,16 +63,12 @@ function parseReport(value: unknown, index: number): ReportConfig {
 }
 
 export async function loadConfig(configPath = "honest-ci.yml", workspace = process.cwd()): Promise<HonestConfig> {
-  const absoluteConfig = path.isAbsolute(configPath)
-    ? path.resolve(configPath)
-    : resolveInsideWorkspace(workspace, configPath, "Config path");
   if (!path.isAbsolute(configPath)) assertRelativeWorkspacePath(configPath, "Config path");
-  if (!isInsideWorkspace(workspace, absoluteConfig)) {
-    throw new HonestCIInputError("Config path must stay inside the workspace.");
-  }
 
   let source: string;
+  let absoluteConfig = path.resolve(workspace, configPath);
   try {
+    absoluteConfig = await resolveExistingInsideWorkspace(workspace, configPath, "Config path");
     source = await readFile(absoluteConfig, "utf8");
   } catch (error) {
     throw new HonestCIInputError(`Cannot read config ${path.relative(workspace, absoluteConfig) || absoluteConfig}: ${error instanceof Error ? error.message : String(error)}`);

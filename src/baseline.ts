@@ -1,7 +1,8 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { resolveInsideWorkspace } from "./paths.js";
+import { prepareWritableFileInsideWorkspace, resolveExistingInsideWorkspace } from "./paths.js";
 import { HonestCIInputError, type BaselineFile, type BaselineReport, type HonestConfig, type ReportResult } from "./types.js";
 
 function nonNegativeInteger(value: unknown, label: string): number {
@@ -46,8 +47,8 @@ export function parseBaseline(source: string): BaselineFile {
 }
 
 export async function loadLocalBaseline(config: HonestConfig, workspace: string): Promise<BaselineFile | null> {
-  const file = resolveInsideWorkspace(workspace, config.baseline.file, "baseline.file");
   try {
+    const file = await resolveExistingInsideWorkspace(workspace, config.baseline.file, "baseline.file");
     return parseBaseline(await readFile(file, "utf8"));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
@@ -69,8 +70,23 @@ export function createBaseline(reports: ReportResult[], generatedAt = new Date()
 }
 
 export async function writeBaseline(config: HonestConfig, workspace: string, baseline: BaselineFile): Promise<string> {
-  const file = resolveInsideWorkspace(workspace, config.baseline.file, "baseline.file");
-  await mkdir(path.dirname(file), { recursive: true });
-  await writeFile(file, `${JSON.stringify(baseline, null, 2)}\n`, "utf8");
+  const file = await prepareWritableFileInsideWorkspace(
+    workspace,
+    config.baseline.file,
+    "baseline.file",
+  );
+  const temporary = path.join(
+    path.dirname(file),
+    `.${path.basename(file)}.${randomBytes(8).toString("hex")}.tmp`,
+  );
+  try {
+    await writeFile(temporary, `${JSON.stringify(baseline, null, 2)}\n`, {
+      encoding: "utf8",
+      flag: "wx",
+    });
+    await rename(temporary, file);
+  } finally {
+    await rm(temporary, { force: true });
+  }
   return file;
 }

@@ -4,7 +4,7 @@ import path from "node:path";
 import fg from "fast-glob";
 import { parse } from "yaml";
 
-import { isInsideWorkspace, toPosixPath } from "./paths.js";
+import { resolveExistingInsideWorkspace, toPosixPath } from "./paths.js";
 import { HonestCIInputError, type Finding, type HonestConfig } from "./types.js";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -68,13 +68,14 @@ export async function findWorkflowFiles(config: HonestConfig, workspace: string)
     onlyFiles: true,
     unique: true,
   });
-  return files.sort();
+  return Promise.all(
+    files.sort().map((file) => resolveExistingInsideWorkspace(workspace, file, "Workflow path")),
+  );
 }
 
 export async function lintWorkflows(config: HonestConfig, workspace: string): Promise<Finding[]> {
   const findings: Finding[] = [];
   for (const file of await findWorkflowFiles(config, workspace)) {
-    if (!isInsideWorkspace(workspace, file)) throw new HonestCIInputError(`Workflow leaves the workspace: ${file}.`);
     const relative = toPosixPath(path.relative(workspace, file));
     let value: unknown;
     try {

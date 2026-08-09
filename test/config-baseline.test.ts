@@ -1,10 +1,10 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createBaseline, parseBaseline } from "../src/baseline.js";
+import { createBaseline, loadLocalBaseline, parseBaseline, writeBaseline } from "../src/baseline.js";
 import { loadConfig } from "../src/config.js";
 
 const roots: string[] = [];
@@ -61,6 +61,61 @@ reports:
     format: junit
 `);
     await expect(loadConfig(second.file, first.root)).rejects.toThrow(/inside the workspace/i);
+  });
+
+  it("rejects a config reached through an external directory link", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "honest-ci-config-root-"));
+    const outside = await mkdtemp(path.join(os.tmpdir(), "honest-ci-config-outside-"));
+    roots.push(root, outside);
+    await writeFile(path.join(outside, "honest-ci.yml"), `
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await symlink(outside, path.join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
+
+    await expect(loadConfig("linked/honest-ci.yml", root)).rejects.toThrow(/inside the workspace/i);
+  });
+
+  it("rejects linked baseline reads and writes without changing the outside file", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+baseline:
+  file: linked/baseline.json
+`);
+    const outside = await mkdtemp(path.join(os.tmpdir(), "honest-ci-baseline-outside-"));
+    roots.push(outside);
+    const outsideBaseline = path.join(outside, "baseline.json");
+    await writeFile(outsideBaseline, "SENTINEL\n");
+    await symlink(outside, path.join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
+    const loaded = await loadConfig("honest-ci.yml", root);
+    const baseline = createBaseline([], "2026-01-01T00:00:00.000Z");
+
+    await expect(loadLocalBaseline(loaded, root)).rejects.toThrow(/inside the workspace/i);
+    await expect(writeBaseline(loaded, root, baseline)).rejects.toThrow(/symbolic link/i);
+    expect(await readFile(outsideBaseline, "utf8")).toBe("SENTINEL\n");
+  });
+
+  it("preserves normal baseline writes inside the workspace", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    const loaded = await loadConfig("honest-ci.yml", root);
+    const baseline = createBaseline([], "2026-01-01T00:00:00.000Z");
+
+    const written = await writeBaseline(loaded, root, baseline);
+    expect(written).toBe(path.join(root, ".honest-ci", "baseline.json"));
+    expect(parseBaseline(await readFile(written, "utf8"))).toEqual(baseline);
   });
 
   it("rejects malformed baseline counters", () => {
