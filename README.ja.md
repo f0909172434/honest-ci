@@ -57,7 +57,7 @@ npm install --save-dev honest-ci@1.0.0
 デフォルトブランチで成功した後、ベースラインを生成、確認、コミットします。
 
 ```console
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
@@ -92,10 +92,11 @@ npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 ```
 
 人が読む場合は `--format pretty`、自動処理には `--format json` を使います。Exit code は、成功が 0、確定問題が 1、設定または入力エラーが 2 です。
+`baseline write` にはテストコマンドを渡すことを推奨します。コマンドが成功し、設定済みレポートが更新された場合にのみ HonestCI はベースラインを書き込みます。互換性のためコマンドは省略できますが、既存レポートには `HCI107_FRESHNESS_UNVERIFIED` が付きます。
 
 ## 再現可能な偽の成功 demo
 

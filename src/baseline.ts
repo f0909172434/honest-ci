@@ -2,8 +2,19 @@ import { randomBytes } from "node:crypto";
 import { readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
+import { checkReports } from "./check.js";
 import { prepareWritableFileInsideWorkspace, resolveExistingInsideWorkspace } from "./paths.js";
-import { HonestCIInputError, type BaselineFile, type BaselineReport, type HonestConfig, type ReportResult } from "./types.js";
+import { snapshotReports } from "./report-files.js";
+import { runArgv } from "./runner.js";
+import {
+  HonestCIInputError,
+  type BaselineFile,
+  type BaselineReport,
+  type CheckResult,
+  type Finding,
+  type HonestConfig,
+  type ReportResult,
+} from "./types.js";
 
 function nonNegativeInteger(value: unknown, label: string): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
@@ -67,6 +78,32 @@ export function createBaseline(reports: ReportResult[], generatedAt = new Date()
     },
   ] as const);
   return { version: 1, generatedAt, reports: Object.fromEntries(entries) };
+}
+
+export async function observeBaseline(
+  config: HonestConfig,
+  workspace: string,
+  testCommand: string[] = [],
+): Promise<CheckResult> {
+  let snapshots;
+  const initialFindings: Finding[] = [];
+  if (testCommand.length > 0) {
+    snapshots = await snapshotReports(config, workspace);
+    const exitCode = await runArgv(testCommand, workspace);
+    if (exitCode !== 0) {
+      initialFindings.push({
+        code: "HCI010_COMMAND_FAILED",
+        severity: "error",
+        message: `The test command exited with code ${exitCode}.`,
+      });
+    }
+  }
+  return checkReports(config, workspace, {
+    baseline: null,
+    ignoreBaseline: true,
+    ...(snapshots ? { snapshots } : { freshnessUnverified: true }),
+    initialFindings,
+  });
 }
 
 export async function writeBaseline(config: HonestConfig, workspace: string, baseline: BaselineFile): Promise<string> {

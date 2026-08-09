@@ -57,7 +57,7 @@ npm install --save-dev honest-ci@1.0.0
 預設分支成功執行後，產生、檢查並提交基準：
 
 ```console
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
@@ -92,10 +92,11 @@ npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 ```
 
 人類閱讀使用 `--format pretty`，自動化使用 `--format json`。Exit code 0 表示通過、1 表示確定問題、2 表示設定或輸入錯誤。
+建議在 `baseline write` 後傳入測試命令；只有命令成功且設定的報告確實更新時，HonestCI 才會寫入基準。為了相容舊用法，命令仍可省略，但既有報告會附帶 `HCI107_FRESHNESS_UNVERIFIED`。
 
 ## 可重現的假綠燈 demo
 

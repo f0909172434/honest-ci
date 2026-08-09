@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createBaseline, loadLocalBaseline, parseBaseline, writeBaseline } from "../src/baseline.js";
+import { createBaseline, loadLocalBaseline, observeBaseline, parseBaseline, writeBaseline } from "../src/baseline.js";
 import { loadConfig } from "../src/config.js";
 
 const roots: string[] = [];
@@ -138,5 +138,63 @@ reports:
       generatedAt: "2026-01-01T00:00:00.000Z",
       reports: { unit: { tests: 5, failures: 0, errors: 0, skipped: 1 } },
     });
+  });
+
+  it("observes a fresh report before creating a baseline", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await mkdir(path.join(root, "reports"), { recursive: true });
+    await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="1"/>');
+    const script = path.join(root, "write-report.cjs");
+    await writeFile(script, `require("node:fs").writeFileSync("reports/junit.xml", '<testsuite tests="4"/>');\n`);
+    const loaded = await loadConfig("honest-ci.yml", root);
+
+    const result = await observeBaseline(loaded, root, [process.execPath, script]);
+
+    expect(result.status).toBe("passed");
+    expect(result.totals.tests).toBe(4);
+    expect(result.findings.map((finding) => finding.code)).not.toContain("HCI003_STALE_REPORT");
+    expect(result.findings.map((finding) => finding.code)).not.toContain("HCI107_FRESHNESS_UNVERIFIED");
+  });
+
+  it("does not accept an unchanged report as a fresh baseline", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await mkdir(path.join(root, "reports"), { recursive: true });
+    await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="1"/>');
+    const loaded = await loadConfig("honest-ci.yml", root);
+
+    const result = await observeBaseline(loaded, root, [process.execPath, "-e", ""]);
+
+    expect(result.status).toBe("failed");
+    expect(result.findings.map((finding) => finding.code)).toContain("HCI003_STALE_REPORT");
+  });
+
+  it("does not create a baseline from a failed test command", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await mkdir(path.join(root, "reports"), { recursive: true });
+    await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="1"/>');
+    const loaded = await loadConfig("honest-ci.yml", root);
+
+    const result = await observeBaseline(loaded, root, [process.execPath, "-e", "process.exit(7)"]);
+
+    expect(result.status).toBe("failed");
+    expect(result.findings.map((finding) => finding.code)).toContain("HCI010_COMMAND_FAILED");
   });
 });

@@ -71,7 +71,7 @@ After a successful default-branch run, create and review the baseline:
 
 ```console
 npm install --save-dev honest-ci@1.0.0
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test -- --reporter=junit --outputFile=reports/junit.xml
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
@@ -112,11 +112,15 @@ npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml --evidence-output .honest-ci/evidence.json -- npm test
 npx honest-ci check --config honest-ci.yml
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 ```
 
 Use `--format pretty` for people or `--format json` for automation. Exit status
 is 0 for pass, 1 for definite findings, and 2 for invalid input or configuration.
+Passing a test command to `baseline write` is recommended: HonestCI writes the
+baseline only when the command succeeds and the configured reports are fresh.
+The command remains optional for compatibility, but existing reports then carry
+`HCI107_FRESHNESS_UNVERIFIED`.
 
 ## Evidence Bundle v1
 

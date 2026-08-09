@@ -83,4 +83,4 @@ Use `paths: [target/surefire-reports/*.xml]` and let HonestCI aggregate the file
 
 Run the test in its existing step, then use the Action without `command`. HonestCI will validate the report and emit `HCI107_FRESHNESS_UNVERIFIED` because a standalone check cannot prove which process created the file.
 
-Prefer wrapping the command when possible. After a successful default-branch run, generate and commit the baseline with `npx honest-ci baseline write`. Install the reproducible stable package with `honest-ci@1.0.0`.
+Prefer wrapping the command when possible. On the default branch, generate fresh reports and the baseline together with `npx honest-ci baseline write -- <test-command>`, then review and commit the baseline. Install the reproducible stable package with `honest-ci@1.0.0`.

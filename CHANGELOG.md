@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Allow `baseline write -- <test-command>` to prove the configured reports are fresh before replacing the committed baseline, while preserving the existing no-command workflow with an explicit freshness warning.
+
 ## 1.0.0
 
 - Promote additive Evidence Bundle v1 output after RigorGraph interoperability tests.
