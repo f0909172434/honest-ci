@@ -1,10 +1,10 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createBaseline, parseBaseline } from "../src/baseline.js";
+import { createBaseline, loadLocalBaseline, observeBaseline, parseBaseline, writeBaseline } from "../src/baseline.js";
 import { loadConfig } from "../src/config.js";
 
 const roots: string[] = [];
@@ -63,6 +63,61 @@ reports:
     await expect(loadConfig(second.file, first.root)).rejects.toThrow(/inside the workspace/i);
   });
 
+  it("rejects a config reached through an external directory link", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "honest-ci-config-root-"));
+    const outside = await mkdtemp(path.join(os.tmpdir(), "honest-ci-config-outside-"));
+    roots.push(root, outside);
+    await writeFile(path.join(outside, "honest-ci.yml"), `
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await symlink(outside, path.join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
+
+    await expect(loadConfig("linked/honest-ci.yml", root)).rejects.toThrow(/inside the workspace/i);
+  });
+
+  it("rejects linked baseline reads and writes without changing the outside file", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+baseline:
+  file: linked/baseline.json
+`);
+    const outside = await mkdtemp(path.join(os.tmpdir(), "honest-ci-baseline-outside-"));
+    roots.push(outside);
+    const outsideBaseline = path.join(outside, "baseline.json");
+    await writeFile(outsideBaseline, "SENTINEL\n");
+    await symlink(outside, path.join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
+    const loaded = await loadConfig("honest-ci.yml", root);
+    const baseline = createBaseline([], "2026-01-01T00:00:00.000Z");
+
+    await expect(loadLocalBaseline(loaded, root)).rejects.toThrow(/inside the workspace/i);
+    await expect(writeBaseline(loaded, root, baseline)).rejects.toThrow(/symbolic link/i);
+    expect(await readFile(outsideBaseline, "utf8")).toBe("SENTINEL\n");
+  });
+
+  it("preserves normal baseline writes inside the workspace", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    const loaded = await loadConfig("honest-ci.yml", root);
+    const baseline = createBaseline([], "2026-01-01T00:00:00.000Z");
+
+    const written = await writeBaseline(loaded, root, baseline);
+    expect(written).toBe(await realpath(path.join(root, ".honest-ci", "baseline.json")));
+    expect(parseBaseline(await readFile(written, "utf8"))).toEqual(baseline);
+  });
+
   it("rejects malformed baseline counters", () => {
     expect(() => parseBaseline('{"version":1,"generatedAt":"2026-01-01T00:00:00Z","reports":{"unit":{"tests":-1,"failures":0,"errors":0,"skipped":0}}}')).toThrow(/non-negative/);
   });
@@ -83,5 +138,63 @@ reports:
       generatedAt: "2026-01-01T00:00:00.000Z",
       reports: { unit: { tests: 5, failures: 0, errors: 0, skipped: 1 } },
     });
+  });
+
+  it("observes a fresh report before creating a baseline", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await mkdir(path.join(root, "reports"), { recursive: true });
+    await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="1"/>');
+    const script = path.join(root, "write-report.cjs");
+    await writeFile(script, `require("node:fs").writeFileSync("reports/junit.xml", '<testsuite tests="4"/>');\n`);
+    const loaded = await loadConfig("honest-ci.yml", root);
+
+    const result = await observeBaseline(loaded, root, [process.execPath, script]);
+
+    expect(result.status).toBe("passed");
+    expect(result.totals.tests).toBe(4);
+    expect(result.findings.map((finding) => finding.code)).not.toContain("HCI003_STALE_REPORT");
+    expect(result.findings.map((finding) => finding.code)).not.toContain("HCI107_FRESHNESS_UNVERIFIED");
+  });
+
+  it("does not accept an unchanged report as a fresh baseline", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await mkdir(path.join(root, "reports"), { recursive: true });
+    await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="1"/>');
+    const loaded = await loadConfig("honest-ci.yml", root);
+
+    const result = await observeBaseline(loaded, root, [process.execPath, "-e", ""]);
+
+    expect(result.status).toBe("failed");
+    expect(result.findings.map((finding) => finding.code)).toContain("HCI003_STALE_REPORT");
+  });
+
+  it("does not create a baseline from a failed test command", async () => {
+    const { root } = await writeConfig(`
+version: 1
+reports:
+  - name: unit
+    paths: [reports/*.xml]
+    format: junit
+`);
+    await mkdir(path.join(root, "reports"), { recursive: true });
+    await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="1"/>');
+    const loaded = await loadConfig("honest-ci.yml", root);
+
+    const result = await observeBaseline(loaded, root, [process.execPath, "-e", "process.exit(7)"]);
+
+    expect(result.status).toBe("failed");
+    expect(result.findings.map((finding) => finding.code)).toContain("HCI010_COMMAND_FAILED");
   });
 });

@@ -18,8 +18,8 @@ jobs:
         node: [20, 24]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: ${{ matrix.node }}
           cache: npm
@@ -39,7 +39,7 @@ jobs:
         run: test "${{ steps.honest-ci.outputs.evidence-path }}" = ".honest-ci/evidence.json" && test -f .honest-ci/evidence.json
       - name: Upload HonestCI evidence
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: honest-ci-evidence-${{ matrix.os }}-${{ matrix.node }}
           path: .honest-ci/evidence.json
@@ -48,8 +48,8 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24
           cache: npm
@@ -57,3 +57,17 @@ jobs:
       - run: npm run build
       - run: git diff --exit-code -- dist
       - run: npm pack --dry-run
+
+  ci-gate:
+    name: ci-gate
+    if: always()
+    needs: [verify, package]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require every CI job to pass
+        env:
+          VERIFY_RESULT: ${{ needs.verify.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+        run: |
+          test "$VERIFY_RESULT" = "success"
+          test "$PACKAGE_RESULT" = "success"

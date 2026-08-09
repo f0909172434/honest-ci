@@ -3,7 +3,7 @@ import path from "node:path";
 
 import { Command, CommanderError } from "commander";
 
-import { createBaseline, loadLocalBaseline, writeBaseline } from "./baseline.js";
+import { createBaseline, loadLocalBaseline, observeBaseline, writeBaseline } from "./baseline.js";
 import { checkReports } from "./check.js";
 import { loadConfig } from "./config.js";
 import { writeEvidenceBundle } from "./evidence.js";
@@ -108,14 +108,12 @@ async function main(): Promise<void> {
 
   const baseline = program.command("baseline").description("manage committed test-count baselines");
   common(baseline.command("write").description("write a baseline from successful reports"))
-    .action(async (options: CommonOptions) => {
+    .argument("[test-command...]", "optional command to run before writing the baseline")
+    .allowUnknownOption(true)
+    .action(async (testCommand: string[], options: CommonOptions) => {
       const config = await loadConfig(options.config, workspace);
       const format = formatOf(options);
-      const result = await checkReports(config, workspace, {
-        baseline: null,
-        freshnessUnverified: true,
-        ignoreBaseline: true,
-      });
+      const result = await observeBaseline(config, workspace, testCommand);
       if (result.status === "failed") {
         printCheckResult(result, format);
         process.exitCode = 1;

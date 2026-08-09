@@ -57,7 +57,7 @@ npm install --save-dev honest-ci@1.0.0
 預設分支成功執行後，產生、檢查並提交基準：
 
 ```console
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
@@ -92,10 +92,11 @@ npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 ```
 
 人類閱讀使用 `--format pretty`，自動化使用 `--format json`。Exit code 0 表示通過、1 表示確定問題、2 表示設定或輸入錯誤。
+建議在 `baseline write` 後傳入測試命令；只有命令成功且設定的報告確實更新時，HonestCI 才會寫入基準。為了相容舊用法，命令仍可省略，但既有報告會附帶 `HCI107_FRESHNESS_UNVERIFIED`。
 
 ## 可重現的假綠燈 demo
 
@@ -121,7 +122,7 @@ HonestCI v1 支援 GitHub Actions、JUnit XML、Ubuntu、Windows 與 macOS。不
 
 HonestCI 只驗證可觀察的 CI 執行證據。它不證明測試充分、斷言有意義、所有應有測試都存在，也不證明程式正確。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [發布政策](docs/RELEASE_POLICY.md) · 安全：[docs/SECURITY.md](docs/SECURITY.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [發布政策](docs/RELEASE_POLICY.md) · 安全：[SECURITY.md](SECURITY.md) · [威脅模型](docs/THREAT_MODEL.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Evidence Bundle v1
 

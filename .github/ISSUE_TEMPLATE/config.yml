@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private vulnerability reporting
+    url: https://github.com/f0909172434/honest-ci/security/advisories/new
+    about: Report vulnerabilities and sensitive exploit details privately.
+  - name: Configuration and runner recipes
+    url: https://github.com/f0909172434/honest-ci/blob/main/docs/RUNNER_RECIPES.md
+    about: Check the supported JUnit integrations before opening an issue.

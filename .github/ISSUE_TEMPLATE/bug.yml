@@ -1,0 +1,37 @@
+name: Bug report
+description: Report reproducible HonestCI behavior that is not a security issue.
+title: "[bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Remove secrets, private paths, test names, and proprietary logs. Report vulnerabilities through Private Vulnerability Reporting instead.
+  - type: input
+    id: version
+    attributes:
+      label: HonestCI version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Ubuntu 24.04, Node.js 24, GitHub Actions
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal sanitized reproduction
+      description: Include the command, configuration, expected result, and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: findings
+    attributes:
+      label: Finding codes and exit status
+      description: List stable HCI finding codes and the process exit status, if available.
+    validations:
+      required: true

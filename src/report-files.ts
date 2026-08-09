@@ -23,7 +23,7 @@ export async function findReportFiles(report: ReportConfig, workspace: string): 
     if (!isInsideWorkspace(canonicalWorkspace, canonical)) {
       throw new HonestCIInputError(`Report file leaves the workspace: ${match}.`);
     }
-    files.set(process.platform === "win32" ? canonical.toLowerCase() : canonical, path.resolve(match));
+    files.set(process.platform === "win32" ? canonical.toLowerCase() : canonical, canonical);
   }
   return [...files.values()].sort((left, right) => left.localeCompare(right));
 }

@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -65,5 +65,19 @@ jobs:
       - run: npm test
 `);
     expect(await lintWorkflows(config, root)).toEqual([]);
+  });
+
+  it("rejects workflow files reached through an external directory link", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "honest-ci-lint-root-"));
+    const outside = await mkdtemp(path.join(os.tmpdir(), "honest-ci-lint-outside-"));
+    roots.push(root, outside);
+    await writeFile(path.join(outside, "ci.yml"), "name: Outside\n");
+    await symlink(outside, path.join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
+    const linkedConfig: HonestConfig = {
+      ...config,
+      workflows: { paths: ["linked/*.yml"] },
+    };
+
+    await expect(lintWorkflows(linkedConfig, root)).rejects.toThrow(/inside the workspace/i);
   });
 });

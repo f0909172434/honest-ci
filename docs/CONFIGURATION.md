@@ -24,4 +24,4 @@ All paths and glob patterns must be relative and remain inside the workspace. Sy
 
 `min_tests` is a hard lower bound. `max_drop_percent` compares a report with the same name in the trusted baseline. `max_skipped_percent` is disabled with `null`.
 
-Run `honest-ci baseline write --config honest-ci.yml` only after a successful run on the default branch, review the generated JSON, and commit it. On a pull request, the Action reads this file at the base commit through GitHub's API; a copy changed by the pull request is not trusted.
+On the default branch, prefer `honest-ci baseline write --config honest-ci.yml -- <test-command>` so HonestCI proves the reports are fresh before writing. Review the generated JSON and commit it. The command is optional for compatibility; without it, HonestCI reports `HCI107_FRESHNESS_UNVERIFIED`. On a pull request, the Action reads this file at the base commit through GitHub's API; a copy changed by the pull request is not trusted.

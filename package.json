@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Make green CI mean the tests you expected actually ran.",
   "license": "MIT",
-  "author": "f0909172434",
+  "author": "Wang Chih Kai",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -21,6 +21,7 @@
     "launch/DEMO.md",
     "launch/assets/false-green-before-after.png",
     "CONTRIBUTING.md",
+    "SECURITY.md",
     "README.md",
     "README.zh-TW.md",
     "README.zh-CN.md",

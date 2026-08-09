@@ -1,8 +1,20 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { randomBytes } from "node:crypto";
+import { readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { resolveInsideWorkspace } from "./paths.js";
-import { HonestCIInputError, type BaselineFile, type BaselineReport, type HonestConfig, type ReportResult } from "./types.js";
+import { checkReports } from "./check.js";
+import { prepareWritableFileInsideWorkspace, resolveExistingInsideWorkspace } from "./paths.js";
+import { snapshotReports } from "./report-files.js";
+import { runArgv } from "./runner.js";
+import {
+  HonestCIInputError,
+  type BaselineFile,
+  type BaselineReport,
+  type CheckResult,
+  type Finding,
+  type HonestConfig,
+  type ReportResult,
+} from "./types.js";
 
 function nonNegativeInteger(value: unknown, label: string): number {
   if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
@@ -46,8 +58,8 @@ export function parseBaseline(source: string): BaselineFile {
 }
 
 export async function loadLocalBaseline(config: HonestConfig, workspace: string): Promise<BaselineFile | null> {
-  const file = resolveInsideWorkspace(workspace, config.baseline.file, "baseline.file");
   try {
+    const file = await resolveExistingInsideWorkspace(workspace, config.baseline.file, "baseline.file");
     return parseBaseline(await readFile(file, "utf8"));
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
@@ -68,9 +80,50 @@ export function createBaseline(reports: ReportResult[], generatedAt = new Date()
   return { version: 1, generatedAt, reports: Object.fromEntries(entries) };
 }
 
+export async function observeBaseline(
+  config: HonestConfig,
+  workspace: string,
+  testCommand: string[] = [],
+): Promise<CheckResult> {
+  let snapshots;
+  const initialFindings: Finding[] = [];
+  if (testCommand.length > 0) {
+    snapshots = await snapshotReports(config, workspace);
+    const exitCode = await runArgv(testCommand, workspace);
+    if (exitCode !== 0) {
+      initialFindings.push({
+        code: "HCI010_COMMAND_FAILED",
+        severity: "error",
+        message: `The test command exited with code ${exitCode}.`,
+      });
+    }
+  }
+  return checkReports(config, workspace, {
+    baseline: null,
+    ignoreBaseline: true,
+    ...(snapshots ? { snapshots } : { freshnessUnverified: true }),
+    initialFindings,
+  });
+}
+
 export async function writeBaseline(config: HonestConfig, workspace: string, baseline: BaselineFile): Promise<string> {
-  const file = resolveInsideWorkspace(workspace, config.baseline.file, "baseline.file");
-  await mkdir(path.dirname(file), { recursive: true });
-  await writeFile(file, `${JSON.stringify(baseline, null, 2)}\n`, "utf8");
+  const file = await prepareWritableFileInsideWorkspace(
+    workspace,
+    config.baseline.file,
+    "baseline.file",
+  );
+  const temporary = path.join(
+    path.dirname(file),
+    `.${path.basename(file)}.${randomBytes(8).toString("hex")}.tmp`,
+  );
+  try {
+    await writeFile(temporary, `${JSON.stringify(baseline, null, 2)}\n`, {
+      encoding: "utf8",
+      flag: "wx",
+    });
+    await rename(temporary, file);
+  } finally {
+    await rm(temporary, { force: true });
+  }
   return file;
 }

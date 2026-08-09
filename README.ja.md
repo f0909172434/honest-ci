@@ -57,7 +57,7 @@ npm install --save-dev honest-ci@1.0.0
 デフォルトブランチで成功した後、ベースラインを生成、確認、コミットします。
 
 ```console
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
@@ -92,10 +92,11 @@ npm install --save-dev honest-ci@1.0.0
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
-npx honest-ci baseline write --config honest-ci.yml
+npx honest-ci baseline write --config honest-ci.yml -- npm test
 ```
 
 人が読む場合は `--format pretty`、自動処理には `--format json` を使います。Exit code は、成功が 0、確定問題が 1、設定または入力エラーが 2 です。
+`baseline write` にはテストコマンドを渡すことを推奨します。コマンドが成功し、設定済みレポートが更新された場合にのみ HonestCI はベースラインを書き込みます。互換性のためコマンドは省略できますが、既存レポートには `HCI107_FRESHNESS_UNVERIFIED` が付きます。
 
 ## 再現可能な偽の成功 demo
 
@@ -121,7 +122,7 @@ HonestCI v1 は GitHub Actions、JUnit XML、Ubuntu、Windows、macOS に対応�
 
 HonestCI が検証するのは観測可能な CI 実行証拠です。テストの十分性、アサーションの妥当性、必要なテストがすべて存在すること、プログラムの正しさは証明しません。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [リリース方針](docs/RELEASE_POLICY.md) · セキュリティ：[docs/SECURITY.md](docs/SECURITY.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [リリース方針](docs/RELEASE_POLICY.md) · セキュリティ：[SECURITY.md](SECURITY.md) · [脅威モデル](docs/THREAT_MODEL.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Evidence Bundle v1
 

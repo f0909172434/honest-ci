@@ -1,0 +1,30 @@
+name: Feature request
+description: Propose an additive improvement within the HonestCI 1.x boundary.
+title: "[feature] "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Observable CI problem
+      description: Describe the false-green or false-positive case, not only a preferred implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Available evidence
+      description: Provide a sanitized workflow/report example or public reference.
+    validations:
+      required: true
+  - type: dropdown
+    id: compatibility
+    attributes:
+      label: Compatibility
+      options:
+        - Additive within current CLI, Action, configuration, and Evidence Bundle v1
+        - May require a breaking interface change
+        - Unknown
+    validations:
+      required: true
