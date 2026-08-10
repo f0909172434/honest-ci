@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 1.0.1
 
 - Allow `baseline write -- <test-command>` to prove the configured reports are fresh before replacing the committed baseline, while preserving the existing no-command workflow with an explicit freshness warning.
+- Enforce canonical workspace boundaries for configuration, workflow, report, and baseline paths, including linked-directory and junction regression coverage.
+- Add a stable cross-platform CI gate, CodeQL, Dependabot, immutable Action pins, a canonical security policy, and an explicit threat model.
 
 ## 1.0.0
 

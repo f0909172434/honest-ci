@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 
 const readmes = ["README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md"];
-const stableCli = "npm install --save-dev honest-ci@1.0.0";
-const stableAction = "f0909172434/honest-ci@v1.0.0";
+const stableCli = "npm install --save-dev honest-ci@1.0.1";
+const stableAction = "f0909172434/honest-ci@v1.0.1";
 
 describe("public project contract", () => {
   it.each(readmes)("keeps a complete Quick Start and limitations in %s", async (file) => {
@@ -73,8 +73,8 @@ describe("public project contract", () => {
     const packageJson = JSON.parse(await readFile("package.json", "utf8"));
     const version = await readFile("src/version.ts", "utf8");
     const release = await readFile(".github/workflows/release.yml", "utf8");
-    expect(packageJson.version).toBe("1.0.0");
-    expect(version).toContain('VERSION = "1.0.0"');
+    expect(packageJson.version).toBe("1.0.1");
+    expect(version).toContain('VERSION = "1.0.1"');
     expect(release).toContain('      - "v*.*.*"');
     expect(release).toContain("workflow_dispatch:");
     expect(release).toContain("ref: ${{ inputs.release_ref || github.ref_name }}");
@@ -85,7 +85,7 @@ describe("public project contract", () => {
     expect(release).toContain('if [[ "${RELEASE_REF}" != *-* ]]');
     expect(release).toContain('major_alias="v${release_version%%.*}"');
     expect(release).toContain('git/refs/tags/${major_alias}');
-    expect(await readFile("launch/RELEASE_NOTES-1.0.0.md", "utf8")).toContain(
+    expect(await readFile("launch/RELEASE_NOTES-1.0.1.md", "utf8")).toContain(
       "Node.js 20 and 24",
     );
   });

@@ -99,7 +99,7 @@ describe("RigorGraph Evidence Bundle v1", () => {
       schema_version: 1,
       profile: "honest-ci/check-result-v1",
       evidence_type: "computation",
-      producer: { name: "honest-ci", version: "1.0.0" },
+      producer: { name: "honest-ci", version: "1.0.1" },
       result: { status: "failed" },
       provenance: { repository: "owner/repo", commit: "a".repeat(40), run_attempt: 2 },
     });

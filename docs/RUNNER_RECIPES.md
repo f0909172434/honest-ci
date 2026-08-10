@@ -11,7 +11,7 @@ HonestCI needs JUnit XML. It does not require a particular language or test fram
     node-version: 24
     cache: npm
 - run: npm ci
-- uses: f0909172434/honest-ci@v1.0.0
+- uses: f0909172434/honest-ci@v1.0.1
   with:
     command: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
     config: honest-ci.yml
@@ -35,7 +35,7 @@ steps:
       node-version: 24
       cache: npm
   - run: npm ci
-  - uses: f0909172434/honest-ci@v1.0.0
+  - uses: f0909172434/honest-ci@v1.0.1
     with:
       command: npm test -- --ci --reporters=default --reporters=jest-junit
       config: honest-ci.yml
@@ -52,7 +52,7 @@ Do not add `--passWithNoTests`; HonestCI intentionally warns about it.
   with:
     python-version: "3.13"
 - run: python -m pip install -r requirements.txt
-- uses: f0909172434/honest-ci@v1.0.0
+- uses: f0909172434/honest-ci@v1.0.1
   with:
     command: python -m pytest --junitxml=reports/junit.xml
     config: honest-ci.yml
@@ -70,7 +70,7 @@ Surefire normally writes JUnit-compatible XML under `target/surefire-reports/`:
     distribution: temurin
     java-version: "21"
     cache: maven
-- uses: f0909172434/honest-ci@v1.0.0
+- uses: f0909172434/honest-ci@v1.0.1
   with:
     command: mvn --batch-mode test
     config: honest-ci.yml
@@ -83,4 +83,4 @@ Use `paths: [target/surefire-reports/*.xml]` and let HonestCI aggregate the file
 
 Run the test in its existing step, then use the Action without `command`. HonestCI will validate the report and emit `HCI107_FRESHNESS_UNVERIFIED` because a standalone check cannot prove which process created the file.
 
-Prefer wrapping the command when possible. On the default branch, generate fresh reports and the baseline together with `npx honest-ci baseline write -- <test-command>`, then review and commit the baseline. Install the reproducible stable package with `honest-ci@1.0.0`.
+Prefer wrapping the command when possible. On the default branch, generate fresh reports and the baseline together with `npx honest-ci baseline write -- <test-command>`, then review and commit the baseline. Install the reproducible stable package with `honest-ci@1.0.1`.
