@@ -1,6 +1,6 @@
 {
   "name": "honest-ci",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Make green CI mean the tests you expected actually ran.",
   "license": "MIT",
   "author": "Wang Chih Kai",

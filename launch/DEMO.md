@@ -46,7 +46,7 @@ The verifier checks the before exit is 0, the after exit is 1, `HCI004_ZERO_TEST
 The four README files contain the complete workflow and configuration. Until an npm registry package is published, install the existing versioned GitHub Release asset:
 
 ```console
-npm install --save-dev honest-ci@1.0.0
+npm install --save-dev honest-ci@1.0.1
 npx honest-ci baseline write --config honest-ci.yml
 ```
 

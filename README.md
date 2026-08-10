@@ -28,8 +28,8 @@ HonestCI complements test reporters. A reporter makes results readable;
 HonestCI checks whether the expected evidence is fresh and whether the observed
 test count still matches a trusted baseline. You can use both in the same job.
 
-Release status: `v1.0.0`. Stable 1.x interfaces are additive. Use immutable
-`v1.0.0` for reproducibility; the moving `v1` Action tag follows the latest
+Release status: `v1.0.1`. Stable 1.x interfaces are additive. Use immutable
+`v1.0.1` for reproducibility; the moving `v1` Action tag follows the latest
 compatible 1.x release.
 
 ## Five-minute Quick Start
@@ -56,7 +56,7 @@ Add the Action after checkout and dependency installation. Replace the example
 command with the JUnit command for your runner:
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.0
+- uses: f0909172434/honest-ci@v1.0.1
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -70,7 +70,7 @@ and does not comment on pull requests.
 After a successful default-branch run, create and review the baseline:
 
 ```console
-npm install --save-dev honest-ci@1.0.0
+npm install --save-dev honest-ci@1.0.1
 npx honest-ci baseline write --config honest-ci.yml -- npm test -- --reporter=junit --outputFile=reports/junit.xml
 git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
@@ -108,7 +108,7 @@ meaningful. Those remain explicit non-goals in 1.x.
 HonestCI requires Node.js 20 or newer.
 
 ```console
-npm install --save-dev honest-ci@1.0.0
+npm install --save-dev honest-ci@1.0.1
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml --evidence-output .honest-ci/evidence.json -- npm test
 npx honest-ci check --config honest-ci.yml
