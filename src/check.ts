@@ -1,3 +1,4 @@
+import { realpath } from "node:fs/promises";
 import path from "node:path";
 
 import { parseJUnitFile } from "./junit.js";
@@ -53,6 +54,7 @@ export async function checkReports(
 ): Promise<CheckResult> {
   const findings = [...(options.initialFindings ?? [])];
   const reports: ReportResult[] = [];
+  const canonicalWorkspace = await realpath(workspace);
 
   if (!options.ignoreBaseline && options.baseline === null) {
     findings.push(warning(
@@ -69,7 +71,7 @@ export async function checkReports(
 
   for (const report of config.reports) {
     const files = await findReportFiles(report, workspace);
-    const relativeFiles = files.map((file) => toPosixPath(path.relative(workspace, file)));
+    const relativeFiles = files.map((file) => toPosixPath(path.relative(canonicalWorkspace, file)));
     const baselineReport = options.ignoreBaseline ? undefined : options.baseline?.reports[report.name];
     let totals: TestTotals = ZERO_TOTALS;
     let validFiles = 0;

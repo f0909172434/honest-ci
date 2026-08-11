@@ -6,3 +6,6 @@ contact_links:
   - name: Configuration and runner recipes
     url: https://github.com/f0909172434/honest-ci/blob/main/docs/RUNNER_RECIPES.md
     about: Check the supported JUnit integrations before opening an issue.
+  - name: Compatibility and known limitations
+    url: https://github.com/f0909172434/honest-ci/blob/main/docs/COMPATIBILITY.md
+    about: Review continuously verified behavior, recipe-level support, and explicit non-goals.

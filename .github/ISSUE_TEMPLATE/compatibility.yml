@@ -1,0 +1,68 @@
+name: Compatibility report
+description: Report a successful or unsuccessful HonestCI integration with a JUnit producer.
+title: "[compatibility] "
+labels:
+  - compatibility
+body:
+  - type: markdown
+    attributes:
+      value: Remove secrets, private paths, test names, and proprietary logs. A public repository URL is welcome but never required.
+  - type: dropdown
+    id: outcome
+    attributes:
+      label: Outcome
+      options:
+        - Worked as expected
+        - Failed to parse or discover the report
+        - Produced a possible false positive
+        - Produced a possible false negative
+    validations:
+      required: true
+  - type: input
+    id: honest_ci_version
+    attributes:
+      label: HonestCI version or Action reference
+      placeholder: 1.0.1 or f0909172434/honest-ci@v1.0.1
+    validations:
+      required: true
+  - type: input
+    id: producer
+    attributes:
+      label: Test framework and JUnit producer
+      placeholder: pytest 9 with --junitxml, or Jest 30 with jest-junit 16
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: GitHub Actions ubuntu-latest, Node.js 24
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal sanitized configuration and command
+      description: Include report globs, the producer command, exit status, and stable HCI finding codes.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: junit_shape
+    attributes:
+      label: Sanitized JUnit shape
+      description: Include only the smallest XML structure needed to reproduce the result; remove test names and logs.
+      render: xml
+    validations:
+      required: true
+  - type: input
+    id: public_evidence
+    attributes:
+      label: Public evidence URL (optional)
+      description: Link to a public workflow or repository only if you are comfortable having it inspected.
+  - type: checkboxes
+    id: ledger
+    attributes:
+      label: Public adoption ledger
+      options:
+        - label: If the public evidence is verified, I consent to the repository being named in ADOPTION.md.

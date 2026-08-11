@@ -4,6 +4,16 @@ title: "[false-positive] "
 labels:
   - false-positive
 body:
+  - type: markdown
+    attributes:
+      value: Remove secrets, private paths, test names, and proprietary logs. Report vulnerabilities through Private Vulnerability Reporting instead.
+  - type: input
+    id: version
+    attributes:
+      label: HonestCI version or Action reference
+      placeholder: 1.0.1 or f0909172434/honest-ci@v1.0.1
+    validations:
+      required: true
   - type: input
     id: code
     attributes:
@@ -22,5 +32,12 @@ body:
     id: platform
     attributes:
       label: Operating system and Node version
+    validations:
+      required: true
+  - type: input
+    id: producer
+    attributes:
+      label: Test framework and JUnit producer
+      placeholder: pytest 9 with --junitxml
     validations:
       required: true

@@ -18,6 +18,8 @@ describe("public project contract", () => {
     expect(source).toContain("docs/EVIDENCE_BUNDLES.md");
     expect(source).toContain("JUnit XML");
     expect(source).toContain("GitHub Actions");
+    expect(source).toContain("demo:scenarios");
+    expect(source).toContain("docs/COMPATIBILITY.md");
   });
 
   it("declares every required Action input and output", async () => {
@@ -53,9 +55,18 @@ describe("public project contract", () => {
 
   it("keeps the public demo tied to executable evidence and explicit limits", async () => {
     const demo = await readFile("launch/DEMO.md", "utf8");
+    const scenarios = await readFile("demo/scenarios/README.md", "utf8");
     expect(demo).toContain("npm run demo:verify");
     expect(demo).toContain("HCI004_ZERO_TESTS");
     expect(demo).toContain("does not prove that any test suite is sufficient");
+    for (const code of [
+      "HCI001_MISSING_REPORT",
+      "HCI003_STALE_REPORT",
+      "HCI004_ZERO_TESTS",
+      "HCI006_TEST_FAILURES",
+      "HCI008_BASELINE_DROP",
+    ]) expect(scenarios).toContain(code);
+    expect(scenarios).toContain("npm run demo:scenarios");
   });
 
   it("covers every supported public-registry release endpoint", async () => {

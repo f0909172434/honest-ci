@@ -20,7 +20,10 @@ JUnit document, remove tokens, private paths, test names, and proprietary data.
 
 - HonestCI parses workflow YAML but never evaluates or executes that YAML.
 - Only the explicit command supplied to `honest-ci run` or the Action
-  `command` input is executed.
+  `command` input is executed. CLI arguments after `--` are launched as an
+  argument vector without shell interpretation. The Action `command` input is
+  intentionally interpreted by the runner shell and must be trusted workflow
+  configuration, not pull-request-controlled data.
 - JUnit containing DTD or entity declarations is rejected before parsing.
 - Report and workflow paths are confined to the workspace; symlinks are not
   followed and resolved paths are checked again.

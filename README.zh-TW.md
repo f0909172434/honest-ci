@@ -112,6 +112,8 @@ node dist/cli/index.js check --config demo/healthy/honest-ci.yml
 
 第一個命令會警告四種常見 workflow 風險；第二個命令會因 JUnit 明確記錄零測試而失敗；健康 fixture 不會出現 hard finding。詳見 [demo 說明](demo/README.md)。
 
+若要一次重現缺少報告、零測試、舊報告、測試數下降、失敗測試與路徑探索等七種隔離情境，執行 `npm run demo:scenarios`；詳見 [情境矩陣](demo/scenarios/README.md)。
+
 ## 可信基準
 
 PR 執行時，Action 透過 GitHub API 從 base commit 取得 `.honest-ci/baseline.json`。PR 無法靠修改自己工作區的副本降低比較目標。若 fork 沒有權限讀取基準，HonestCI 仍執行固定最低測試數檢查，並顯示 `HCI106_BASELINE_UNAVAILABLE`。
@@ -122,7 +124,7 @@ HonestCI v1 支援 GitHub Actions、JUnit XML、Ubuntu、Windows 與 macOS。不
 
 HonestCI 只驗證可觀察的 CI 執行證據。它不證明測試充分、斷言有意義、所有應有測試都存在，也不證明程式正確。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [發布政策](docs/RELEASE_POLICY.md) · 安全：[SECURITY.md](SECURITY.md) · [威脅模型](docs/THREAT_MODEL.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [相容性與限制](docs/COMPATIBILITY.md) · [發布政策](docs/RELEASE_POLICY.md) · 安全：[SECURITY.md](SECURITY.md) · [威脅模型](docs/THREAT_MODEL.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md) · [維護流程](docs/MAINTENANCE.md) · [公開採用證據](ADOPTION.md)
 
 ## Evidence Bundle v1
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+- Preserve CLI arguments literally on Windows when launching npm-style command
+  shims, so shell metacharacters in one argv element cannot become a second
+  command.
+- Normalize report paths against the canonical workspace so Windows runner path
+  aliases do not turn in-workspace reports into apparent traversal paths in
+  Evidence Bundle output.
+- Add a seven-case executable scenario matrix, an explicit compatibility and
+  limitations reference, privacy-respecting public adoption evidence rules, a
+  maintenance workflow, and a compatibility-report issue form.
+
 ## 1.0.1
 
 - Allow `baseline write -- <test-command>` to prove the configured reports are fresh before replacing the committed baseline, while preserving the existing no-command workflow with an explicit freshness warning.

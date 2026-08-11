@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, symlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
@@ -88,6 +88,21 @@ describe("checkReports", () => {
     await writeFile(path.join(root, "reports", "junit.xml"), '<testsuite tests="7"/>');
     const result = await checkReports(config({ paths: ["reports/*.xml", "reports/junit.xml"] }), root, { baseline: null });
     expect(result.totals.tests).toBe(7);
+  });
+
+  it("keeps report paths relative when the workspace has a lexical alias", async () => {
+    const container = await mkdtemp(path.join(os.tmpdir(), "honest-ci-workspace-alias-"));
+    roots.push(container);
+    const target = path.join(container, "canonical");
+    const alias = path.join(container, "alias");
+    await mkdir(path.join(target, "reports"), { recursive: true });
+    await writeFile(path.join(target, "reports", "junit.xml"), '<testsuite tests="3"/>');
+    await symlink(target, alias, process.platform === "win32" ? "junction" : "dir");
+
+    const result = await checkReports(config(), alias, { baseline: null });
+
+    expect(result.reports[0]?.files).toEqual(["reports/junit.xml"]);
+    expect(result.status).toBe("passed");
   });
 
   it("fails when a wrapped run leaves an existing report unchanged", async () => {
