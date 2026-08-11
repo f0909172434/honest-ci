@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.3
+
+- Change the GitHub Action display name to `HonestCI Evidence Gate` because the
+  shorter name conflicts with an existing GitHub account and cannot be listed
+  in GitHub Marketplace. The repository, Action reference, npm package, inputs,
+  outputs, and runtime behavior are unchanged.
+
 ## 1.0.2
 
 - Preserve CLI arguments literally on Windows when launching npm-style command

@@ -1,4 +1,4 @@
-name: HonestCI
+name: HonestCI Evidence Gate
 author: Wang Chih Kai
 description: Make green CI mean the tests you expected actually ran.
 inputs:
