@@ -3,7 +3,7 @@ author: Wang Chih Kai
 description: Make green CI mean the tests you expected actually ran.
 inputs:
   command:
-    description: Test command to wrap. Leave empty to check existing reports.
+    description: Test shell command to wrap. Leave empty to check existing reports.
     required: false
     default: ""
   config:

@@ -2,6 +2,11 @@
 
 HonestCI needs JUnit XML. It does not require a particular language or test framework. Keep the report path in the test command and `honest-ci.yml` identical.
 
+These are documented starting points, not a promise that every producer
+version and XML variant is continuously tested. See [compatibility and known
+limitations](COMPATIBILITY.md) and submit a compatibility report when a recipe
+works—or fails—in a real repository.
+
 ## Vitest
 
 ```yaml

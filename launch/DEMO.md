@@ -41,16 +41,22 @@ npm run demo:verify
 
 The verifier checks the before exit is 0, the after exit is 1, `HCI004_ZERO_TESTS` is present, and the result is not attributed to stale-report evidence.
 
-## Copyable release-candidate Quick Start
+## Copyable stable Quick Start
 
-The four README files contain the complete workflow and configuration. Until an npm registry package is published, install the existing versioned GitHub Release asset:
+The four README files contain the complete workflow and configuration. Install
+the published immutable npm version:
 
 ```console
 npm install --save-dev honest-ci@1.0.1
 npx honest-ci baseline write --config honest-ci.yml
 ```
 
-The release asset was installed and executed from a clean temporary project during this increment. The repository's `npm run verify` now repeats a local pack, clean install, CLI version check, and one-test JUnit check on every run.
+The repository's `npm run verify` repeats a local pack, clean install, CLI
+version check, and one-test JUnit check on every run. Public-registry installs
+are checked separately for the exact released version.
+
+For missing, zero-test, stale, reduced-count, failing-test, and discovery cases,
+run `npm run demo:scenarios` and see the [scenario matrix](../demo/scenarios/README.md).
 
 ## Claim boundary
 

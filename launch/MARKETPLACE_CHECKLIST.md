@@ -6,9 +6,13 @@ Marketplace terms and selecting **Publish**.
 
 ## Automated prerequisites
 
+- [ ] The repository is public, contains one root `action.yml`, and the
+      Marketplace still reports the `HonestCI` action name as available.
 - [ ] The release commit is on `main` and the required `ci-gate` passed.
 - [ ] Code scanning, dependency review, and secret scanning have no unresolved
       Critical or High finding.
+- [ ] Every open Medium or Low alert has a reproducible disposition; do not use
+      a green workflow badge as a substitute for reviewing an open alert.
 - [ ] The private Codex Security review completed with complete coverage; all
       Medium and Low findings have a recorded disposition.
 - [ ] `npm run verify`, package smoke, and the public registry smoke pass.
@@ -22,7 +26,7 @@ Marketplace terms and selecting **Publish**.
 - **Name:** HonestCI
 - **Tagline:** Make green CI mean the tests you expected actually ran.
 - **Primary category:** Continuous integration
-- **Secondary category:** Code quality
+- **Secondary category:** Testing
 - **Support:** GitHub Issues for sanitized defects and Private Vulnerability
   Reporting for security reports
 
@@ -34,7 +38,8 @@ absence of vulnerabilities.
 
 1. Open the repository's Marketplace draft from the latest reviewed release.
 2. Verify the listing preview and links.
-3. Review and accept the Marketplace terms.
+3. Review and accept the Marketplace terms; GitHub also requires 2FA for the
+   final publication action.
 4. Publish the listing.
 5. Install the listed Action into a disposable public test repository and
    verify that it resolves the intended immutable release.

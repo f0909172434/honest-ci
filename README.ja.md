@@ -112,6 +112,8 @@ node dist/cli/index.js check --config demo/healthy/honest-ci.yml
 
 最初のコマンドは 4 種類の一般的な workflow リスクを警告します。2 番目は JUnit がテスト数 0 を明示しているため失敗します。健全な fixture には hard finding がありません。詳細は [demo](demo/README.md) を参照してください。
 
+レポート欠落、テスト数 0、古いレポート、テスト数減少、失敗テスト、パス探索を含む 7 つの分離シナリオは `npm run demo:scenarios` でまとめて再現できます。[シナリオ表](demo/scenarios/README.md)を参照してください。
+
 ## 信頼できるベースライン
 
 PR では、Action が GitHub API を使って base commit の `.honest-ci/baseline.json` を読みます。PR 内でワークスペースのコピーを書き換えて比較基準を下げることはできません。fork に読み取り権限がない場合も、HonestCI は固定の最小テスト数を検査し、`HCI106_BASELINE_UNAVAILABLE` を表示します。
@@ -122,7 +124,7 @@ HonestCI v1 は GitHub Actions、JUnit XML、Ubuntu、Windows、macOS に対応�
 
 HonestCI が検証するのは観測可能な CI 実行証拠です。テストの十分性、アサーションの妥当性、必要なテストがすべて存在すること、プログラムの正しさは証明しません。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [リリース方針](docs/RELEASE_POLICY.md) · セキュリティ：[SECURITY.md](SECURITY.md) · [脅威モデル](docs/THREAT_MODEL.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [互換性と制限](docs/COMPATIBILITY.md) · [リリース方針](docs/RELEASE_POLICY.md) · セキュリティ：[SECURITY.md](SECURITY.md) · [脅威モデル](docs/THREAT_MODEL.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md) · [メンテナンス](docs/MAINTENANCE.md) · [公開導入証拠](ADOPTION.md)
 
 ## Evidence Bundle v1
 

@@ -19,6 +19,10 @@ The [reproducible demo](launch/DEMO.md) uses the same zero-test runner twice:
 it exits successfully on its own, then HonestCI blocks it with
 `HCI004_ZERO_TESTS`.
 
+For a broader local check, `npm run demo:scenarios` reproduces seven isolated
+missing, zero-test, stale, reduced-count, failing-test, and report-discovery
+cases. See the [scenario matrix](demo/scenarios/README.md).
+
 ```text
 Ordinary runner:  npm test || true                 -> green
 With HonestCI:    missing, stale, or empty JUnit   -> finding -> blocked
@@ -143,17 +147,17 @@ names, logs, arbitrary environment variables, or secrets. Hashes preserve
 observed bytes; they do not prove runner authenticity, test quality, or
 correctness. See [Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md).
 
-## Reproduce the false-green check
+## Reproduce the checks locally
 
 ```console
 npm ci
-npm run build
-npm run demo:verify
-node dist/cli/index.js check --config demo/healthy/honest-ci.yml
+npm run demo:scenarios
 ```
 
-The demo proves that the fixture is detected; it does not prove that HonestCI
-finds every possible CI defect.
+The seven temporary scenarios assert the expected exit status and finding code.
+The original before/after zero-test proof remains available as
+`npm run demo:verify`. These demos prove that the fixtures are detected; they do
+not prove that HonestCI finds every possible CI defect.
 
 ## Trusted baselines
 
@@ -176,9 +180,12 @@ exist, or that a program is correct.
 
 [Configuration](docs/CONFIGURATION.md) ·
 [Runner recipes](docs/RUNNER_RECIPES.md) ·
+[Compatibility and limitations](docs/COMPATIBILITY.md) ·
 [Release policy](docs/RELEASE_POLICY.md) ·
 [Security](SECURITY.md) ·
 [Threat model](docs/THREAT_MODEL.md) ·
-[Contributing](CONTRIBUTING.md)
+[Contributing](CONTRIBUTING.md) ·
+[Maintenance](docs/MAINTENANCE.md) ·
+[Public adoption evidence](ADOPTION.md)
 
 MIT License.

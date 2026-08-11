@@ -14,7 +14,9 @@ Pull-request files, workflow YAML, configuration, JUnit XML, path globs, and
 baseline contents are untrusted inputs. The GitHub API response for the base
 commit is trusted only after normal TLS and repository authorization checks.
 The explicit test command is trusted operator input: HonestCI runs it but does
-not sandbox it.
+not sandbox it. CLI arguments after `--` stay an argument vector; the Action
+`command` input is intentionally a shell command string and must not be built
+from pull-request-controlled values.
 
 ## Threats and controls
 

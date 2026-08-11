@@ -40,10 +40,11 @@ export async function signature(file: string): Promise<FileSignature> {
 
 export async function snapshotReports(config: HonestConfig, workspace: string): Promise<ReportSnapshots> {
   const snapshots: ReportSnapshots = new Map();
+  const canonicalWorkspace = await realpath(workspace);
   for (const report of config.reports) {
     const files = await findReportFiles(report, workspace);
     const reportSnapshot = new Map<string, FileSignature>();
-    for (const file of files) reportSnapshot.set(toPosixPath(path.relative(workspace, file)), await signature(file));
+    for (const file of files) reportSnapshot.set(toPosixPath(path.relative(canonicalWorkspace, file)), await signature(file));
     snapshots.set(report.name, reportSnapshot);
   }
   return snapshots;
