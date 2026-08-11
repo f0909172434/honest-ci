@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.2
 
 - Preserve CLI arguments literally on Windows when launching npm-style command
   shims, so shell metacharacters in one argv element cannot become a second
