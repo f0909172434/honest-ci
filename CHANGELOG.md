@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.4
+
+- Replace the green shield Marketplace badge with a purple `check-square` to
+  represent an evidence-backed CI gate instead of antivirus or security
+  scanning. Runtime behavior and every public interface remain unchanged.
+
 ## 1.0.3
 
 - Change the GitHub Action display name to `HonestCI Evidence Gate` because the

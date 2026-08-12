@@ -39,5 +39,5 @@ runs:
   using: node24
   main: dist/action/index.js
 branding:
-  icon: shield
-  color: green
+  icon: check-square
+  color: purple

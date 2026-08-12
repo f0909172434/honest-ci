@@ -47,7 +47,7 @@ The four README files contain the complete workflow and configuration. Install
 the published immutable npm version:
 
 ```console
-npm install --save-dev honest-ci@1.0.3
+npm install --save-dev honest-ci@1.0.4
 npx honest-ci baseline write --config honest-ci.yml
 ```
 
