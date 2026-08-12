@@ -11,7 +11,7 @@ body:
     id: version
     attributes:
       label: HonestCI version or Action reference
-      placeholder: 1.0.3 or f0909172434/honest-ci@v1.0.3
+      placeholder: 1.0.4 or f0909172434/honest-ci@v1.0.4
     validations:
       required: true
   - type: input

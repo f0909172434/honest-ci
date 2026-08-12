@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
 
 const readmes = ["README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md"];
-const stableCli = "npm install --save-dev honest-ci@1.0.3";
-const stableAction = "f0909172434/honest-ci@v1.0.3";
+const stableCli = "npm install --save-dev honest-ci@1.0.4";
+const stableAction = "f0909172434/honest-ci@v1.0.4";
 
 describe("public project contract", () => {
   it.each(readmes)("keeps a complete Quick Start and limitations in %s", async (file) => {
@@ -25,6 +25,7 @@ describe("public project contract", () => {
   it("declares every required Action input and output", async () => {
     const metadata = parse(await readFile("action.yml", "utf8")) as Record<string, any>;
     expect(metadata.runs).toEqual({ using: "node24", main: "dist/action/index.js" });
+    expect(metadata.branding).toEqual({ icon: "check-square", color: "purple" });
     expect(Object.keys(metadata.inputs)).toEqual(expect.arrayContaining([
       "command", "config", "github-token", "evidence-output",
     ]));
@@ -84,8 +85,8 @@ describe("public project contract", () => {
     const packageJson = JSON.parse(await readFile("package.json", "utf8"));
     const version = await readFile("src/version.ts", "utf8");
     const release = await readFile(".github/workflows/release.yml", "utf8");
-    expect(packageJson.version).toBe("1.0.3");
-    expect(version).toContain('VERSION = "1.0.3"');
+    expect(packageJson.version).toBe("1.0.4");
+    expect(version).toContain('VERSION = "1.0.4"');
     expect(release).toContain('      - "v*.*.*"');
     expect(release).toContain("workflow_dispatch:");
     expect(release).toContain("ref: ${{ inputs.release_ref || github.ref_name }}");
@@ -96,7 +97,7 @@ describe("public project contract", () => {
     expect(release).toContain('if [[ "${RELEASE_REF}" != *-* ]]');
     expect(release).toContain('major_alias="v${release_version%%.*}"');
     expect(release).toContain('git/refs/tags/${major_alias}');
-    expect(await readFile("launch/RELEASE_NOTES-1.0.3.md", "utf8")).toContain(
+    expect(await readFile("launch/RELEASE_NOTES-1.0.4.md", "utf8")).toContain(
       "Node.js 20 and 24",
     );
   });
