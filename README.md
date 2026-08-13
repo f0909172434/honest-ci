@@ -36,9 +36,28 @@ Release status: `v1.0.4`. Stable 1.x interfaces are additive. Use immutable
 `v1.0.4` for reproducibility; the moving `v1` Action tag follows the latest
 compatible 1.x release.
 
+## Capabilities at a glance
+
+| Signal | What HonestCI evaluates | Result |
+| --- | --- | --- |
+| Test command | The wrapped command's exit status | Nonzero is a hard finding |
+| JUnit reports | Presence, parseability, freshness, tests, failures, errors, and skipped tests | Definite problems fail the gate |
+| Test-count baseline | Current count versus the same named report on the trusted baseline | A drop beyond your threshold fails |
+| Workflow YAML | Common false-green patterns such as swallowed exits or permissive conditions | Heuristics are warnings, never proof |
+| Evidence output | Result plus hashes and allowlisted GitHub provenance | Optional JSON bundle for retention or downstream use |
+
+The Action adds annotations and a Job Summary. It also exposes `tests`,
+`failures`, `errors`, `skipped`, `baseline-tests`, `drop-percent`, `warnings`,
+and `evidence-path` outputs for later workflow steps.
+
 ## Five-minute Quick Start
 
-First configure your test runner to write JUnit XML. Then add `honest-ci.yml`:
+This complete Vitest example wraps the test command, retains evidence on both
+pass and fail, and uses the pull request base commit as the trusted baseline.
+For Jest, pytest, or Maven, keep the structure and substitute a command from
+the [runner recipes](docs/RUNNER_RECIPES.md).
+
+First add `honest-ci.yml`:
 
 ```yaml
 version: 1
@@ -53,23 +72,58 @@ baseline:
   file: .honest-ci/baseline.json
   source: default-branch
 workflows:
-  paths: [.github/workflows/*.yml]
+  paths:
+    - .github/workflows/*.yml
+    - .github/workflows/*.yaml
 ```
 
-Add the Action after checkout and dependency installation. Replace the example
-command with the JUnit command for your runner:
+Then add `.github/workflows/tests.yml`:
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.4
-  with:
-    command: npm test -- --reporter=junit --outputFile=reports/junit.xml
-    config: honest-ci.yml
-    github-token: ${{ github.token }}
-    evidence-output: .honest-ci/evidence.json
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run tests through HonestCI
+        id: honest_ci
+        uses: f0909172434/honest-ci@v1.0.4
+        with:
+          command: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
+          config: honest-ci.yml
+          github-token: ${{ github.token }}
+          evidence-output: .honest-ci/evidence.json
+      - name: Upload HonestCI evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: honest-ci-evidence
+          path: .honest-ci/evidence.json
 ```
 
-The Action needs only `contents: read`. It writes annotations and a Job Summary
-and does not comment on pull requests.
+Expected outcome: a fresh report with at least one test, no failures or errors,
+and no configured threshold violation passes. A missing or stale report, zero
+tests, a failed command, or an excessive baseline drop fails the Action and
+adds a stable `HCI...` annotation. The first run without a baseline can still
+pass its fixed checks, with `HCI101_BASELINE_MISSING` as a warning.
+
+The Action needs only `contents: read`. It does not comment on pull requests or
+upload evidence automatically; both behaviors remain explicit workflow choices.
 
 After a successful default-branch run, create and review the baseline:
 
@@ -80,8 +134,11 @@ git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
 
-Runner-specific JUnit commands are available for
-[Vitest, Jest, pytest, and Maven](docs/RUNNER_RECIPES.md).
+Use the same tested JUnit command when writing the baseline. On pull requests,
+the Action reads the committed file from the base commit through the GitHub API,
+so the pull request cannot lower its own baseline merely by editing the workspace
+copy. See the [adoption guide](docs/ADOPTION_GUIDE.md) for advisory rollout,
+multiple suites, threshold selection, and branch-protection guidance.
 
 ## What it catches
 
@@ -97,6 +154,47 @@ Heuristics remain warnings, including `continue-on-error: true`, `|| true`,
 forced `exit 0`, Jest/Vitest `--passWithNoTests`, and dynamic conditions that
 may skip a test-like job or step. See the stable [finding codes](docs/FINDINGS.md).
 
+## Result and failure semantics
+
+The GitHub Action fails its step when at least one definite error finding is
+present. Warnings are reported but do not fail the step. Invalid configuration,
+unsafe paths, or other unevaluable input also fail the Action as an input error.
+
+The CLI uses three exit statuses:
+
+- `0`: evaluable result with no definite error finding (warnings may exist);
+- `1`: one or more definite findings, such as a failed command or invalid report;
+- `2`: the configuration or input could not be evaluated.
+
+Finding codes are the stable automation interface. Human-readable messages may
+improve during 1.x without changing a code's meaning.
+
+## How the gate works
+
+```text
+honest-ci.yml + trusted baseline
+              |
+              v
+snapshot reports -> run test command -> discover and parse fresh JUnit
+                                              |
+workflow lint warnings -----------------------+
+                                              v
+                              thresholds + finding codes
+                                              |
+                         +--------------------+-------------------+
+                         v                    v                   v
+                  exit / Action status   annotations/summary   evidence JSON
+```
+
+The CLI `run` path passes the test executable and arguments directly without a
+shell. The Action's `command` input is a shell command, because workflow authors
+normally provide one command string. Never construct that input from
+pull-request-controlled values. Paths are confined to the workspace, report
+globs do not follow symlinks, and JUnit containing DTD or entity declarations is
+rejected. The [technical overview](docs/TECHNICAL_OVERVIEW.md) documents the
+execution paths, parser behavior, baseline trust boundary, output schema, and
+security model in detail.
+
 ## When to use HonestCI
 
 Use it when a GitHub Actions job already produces JUnit XML and a green run
@@ -107,16 +205,21 @@ HonestCI is not the right tool for coverage analysis, flaky-test analytics,
 hosted dashboards, GitLab/CircleCI workflows, or proving that assertions are
 meaningful. Those remain explicit non-goals in 1.x.
 
+HonestCI also does not make `honest-ci.yml` or workflow files immutable. A pull
+request may propose weaker thresholds or a different command, so protect those
+files with normal review, CODEOWNERS, and branch rules when they are part of a
+required gate.
+
 ## CLI
 
 HonestCI requires Node.js 20 or newer.
 
 ```console
 npm install --save-dev honest-ci@1.0.4
-npx honest-ci lint
-npx honest-ci run --config honest-ci.yml --evidence-output .honest-ci/evidence.json -- npm test
+npx honest-ci lint --config honest-ci.yml
+npx honest-ci run --config honest-ci.yml --evidence-output .honest-ci/evidence.json -- npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
 npx honest-ci check --config honest-ci.yml
-npx honest-ci baseline write --config honest-ci.yml -- npm test
+npx honest-ci baseline write --config honest-ci.yml -- npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
 ```
 
 Use `--format pretty` for people or `--format json` for automation. Exit status
@@ -179,6 +282,8 @@ tests are sufficient, that assertions are meaningful, that all desired tests
 exist, or that a program is correct.
 
 [Configuration](docs/CONFIGURATION.md) ·
+[Adoption guide](docs/ADOPTION_GUIDE.md) ·
+[Technical overview](docs/TECHNICAL_OVERVIEW.md) ·
 [Runner recipes](docs/RUNNER_RECIPES.md) ·
 [Compatibility and limitations](docs/COMPATIBILITY.md) ·
 [Release policy](docs/RELEASE_POLICY.md) ·

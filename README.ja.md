@@ -48,7 +48,7 @@ checkout と依存関係のインストール後に Action を追加し、例の
     evidence-output: .honest-ci/evidence.json
 ```
 
-バージョン固定の CLI アセットをインストールします。同じ beta を GitHub Releases から取得するため、npm registry での公開は不要です。
+npm registry からバージョン固定の CLI をインストールします。
 
 ```console
 npm install --save-dev honest-ci@1.0.4
@@ -124,7 +124,7 @@ HonestCI v1 は GitHub Actions、JUnit XML、Ubuntu、Windows、macOS に対応�
 
 HonestCI が検証するのは観測可能な CI 実行証拠です。テストの十分性、アサーションの妥当性、必要なテストがすべて存在すること、プログラムの正しさは証明しません。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [互換性と制限](docs/COMPATIBILITY.md) · [リリース方針](docs/RELEASE_POLICY.md) · セキュリティ：[SECURITY.md](SECURITY.md) · [脅威モデル](docs/THREAT_MODEL.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md) · [メンテナンス](docs/MAINTENANCE.md) · [公開導入証拠](ADOPTION.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [導入ガイド](docs/ADOPTION_GUIDE.md) · [技術概要](docs/TECHNICAL_OVERVIEW.md) · [テストランナー例](docs/RUNNER_RECIPES.md) · [互換性と制限](docs/COMPATIBILITY.md) · [リリース方針](docs/RELEASE_POLICY.md) · セキュリティ：[SECURITY.md](SECURITY.md) · [脅威モデル](docs/THREAT_MODEL.md) · コントリビューション：[CONTRIBUTING.md](CONTRIBUTING.md) · [メンテナンス](docs/MAINTENANCE.md) · [公開導入証拠](ADOPTION.md)
 
 ## Evidence Bundle v1
 

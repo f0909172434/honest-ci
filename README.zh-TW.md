@@ -48,7 +48,7 @@ workflows:
     evidence-output: .honest-ci/evidence.json
 ```
 
-安裝固定版本的 CLI 資產。此命令會從 GitHub Releases 取得同一個 beta，不需要 npm registry 發布：
+從 npm registry 安裝固定版本的 CLI：
 
 ```console
 npm install --save-dev honest-ci@1.0.4
@@ -124,7 +124,7 @@ HonestCI v1 支援 GitHub Actions、JUnit XML、Ubuntu、Windows 與 macOS。不
 
 HonestCI 只驗證可觀察的 CI 執行證據。它不證明測試充分、斷言有意義、所有應有測試都存在，也不證明程式正確。
 
-設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [相容性與限制](docs/COMPATIBILITY.md) · [發布政策](docs/RELEASE_POLICY.md) · 安全：[SECURITY.md](SECURITY.md) · [威脅模型](docs/THREAT_MODEL.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md) · [維護流程](docs/MAINTENANCE.md) · [公開採用證據](ADOPTION.md)
+設定：[docs/CONFIGURATION.md](docs/CONFIGURATION.md) · [採用指南](docs/ADOPTION_GUIDE.md) · [技術概覽](docs/TECHNICAL_OVERVIEW.md) · [測試工具範例](docs/RUNNER_RECIPES.md) · [相容性與限制](docs/COMPATIBILITY.md) · [發布政策](docs/RELEASE_POLICY.md) · 安全：[SECURITY.md](SECURITY.md) · [威脅模型](docs/THREAT_MODEL.md) · 貢獻：[CONTRIBUTING.md](CONTRIBUTING.md) · [維護流程](docs/MAINTENANCE.md) · [公開採用證據](ADOPTION.md)
 
 ## Evidence Bundle v1
 

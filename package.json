@@ -55,12 +55,13 @@
     "demo:verify": "node scripts/verify-launch-demo.mjs",
     "demo:scenarios": "npm run build && node demo/scenarios/run.mjs",
     "demo:scenarios:verify": "node demo/scenarios/run.mjs",
+    "docs:verify": "node scripts/verify-readme-docs.mjs",
     "package:smoke": "node scripts/package-smoke.mjs",
     "registry:smoke": "node scripts/registry-smoke.mjs",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "verify": "npm run typecheck && npm test && npm run build && npm run demo:verify && npm run demo:scenarios:verify && npm run package:smoke",
+    "verify": "npm run typecheck && npm test && npm run build && npm run docs:verify && npm run demo:verify && npm run demo:scenarios:verify && npm run package:smoke",
     "prepack": "npm run verify"
   },
   "dependencies": {
