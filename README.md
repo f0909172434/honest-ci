@@ -32,9 +32,9 @@ HonestCI complements test reporters. A reporter makes results readable;
 HonestCI checks whether the expected evidence is fresh and whether the observed
 test count still matches a trusted baseline. You can use both in the same job.
 
-Release status: `v1.0.4`. Stable 1.x interfaces are additive. Use immutable
-`v1.0.4` for reproducibility; the moving `v1` Action tag follows the latest
-compatible 1.x release.
+Release status: `v1.0.4`. Stable 1.x interfaces are additive. Use the protected
+semantic-version tag `v1.0.4` for reproducibility; the moving `v1` Action tag
+follows the latest compatible 1.x release.
 
 ## Capabilities at a glance
 
