@@ -7,7 +7,7 @@ HonestCI 1.x preserves stable finding meanings, exit codes, CLI JSON fields, Act
 Release candidates and stable releases require unit, contract, security, demo, package-smoke, cross-platform Action, reproducible bundle, clean-install, and runtime dependency-audit gates. The false-green demo must fail for the intended reason and the healthy demo must have no hard false positive.
 
 The default branch is changed through pull requests and a stable `ci-gate`.
-Release workflows pin third-party Actions to full commit SHAs. Immutable
+Release workflows pin third-party Actions to full commit SHAs. Protected
 semantic-version tags must not be moved or deleted; the compatible `v1` tag may
 move only through the reviewed release process.
 

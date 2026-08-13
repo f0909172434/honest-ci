@@ -44,7 +44,7 @@ The verifier checks the before exit is 0, the after exit is 1, `HCI004_ZERO_TEST
 ## Copyable stable Quick Start
 
 The four README files contain the complete workflow and configuration. Install
-the published immutable npm version:
+the pinned npm version:
 
 ```console
 npm install --save-dev honest-ci@1.0.4

@@ -16,7 +16,7 @@ Marketplace terms and selecting **Publish**.
 - [ ] The private Codex Security review completed with complete coverage; all
       Medium and Low findings have a recorded disposition.
 - [ ] `npm run verify`, package smoke, and the public registry smoke pass.
-- [ ] The immutable release tag and moving `v1` tag resolve to the intended
+- [ ] The protected semantic-version tag and moving `v1` tag resolve to the intended
       reviewed commits.
 - [ ] `action.yml` retains the stable inputs/outputs, Node runtime, author,
       description, and branding.
@@ -42,7 +42,7 @@ absence of vulnerabilities.
    final publication action.
 4. Publish the listing.
 5. Install the listed Action into a disposable public test repository and
-   verify that it resolves the intended immutable release.
+   verify that it resolves the intended protected semantic-version tag.
 
 If the listing resolves the wrong tag, a security gate is incomplete, or the
 fresh-install smoke fails, stop publication rather than weakening a gate.

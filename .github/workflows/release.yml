@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       release_ref:
-        description: Existing immutable release tag to rebuild
+        description: Existing protected semantic-version tag to rebuild
         required: true
         type: string
 
