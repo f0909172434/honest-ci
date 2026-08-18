@@ -11,9 +11,9 @@ permissions:
 
 env:
   OFFICIAL_COMMIT: '2848228ff490422442878fd6f5abaf4cfa95257d'
+  CERT_PATH: 'ephemeral/candidate25-generated-v2.lean'
   CERT_BYTES: '2560'
   CERT_SHA256: '249ebca4ffffe17eb36905df431b550e26a170a5212f920b39d0e3ea06367aa6'
-  PAYLOAD_BRANCH: 'agent/ephemeral-actions-probe'
 
 jobs:
   diagnose:
@@ -23,65 +23,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          persist-credentials: true
 
-      - name: Generate one-time RSA transport key
+      - name: Verify exact certificate binding
         shell: bash
         run: |
           set -euo pipefail
-          umask 077
-          mkdir -p transport
-          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem
-          openssl pkey -in /tmp/private.pem -pubout -out transport/public.pem
-          printf '%s\n' "$GITHUB_RUN_ID" > transport/run-id.txt
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: candidate25-diagnostic-public-key-${{ github.run_id }}
-          path: transport/
-          retention-days: 1
-
-      - name: Receive encrypted certificate
-        shell: bash
-        run: |
-          set -euo pipefail
-          umask 077
-          payload_path="ephemeral/candidate25-diagnostic-${GITHUB_RUN_ID}.json"
-          found=0
-          for attempt in $(seq 1 240); do
-            git fetch --quiet origin "$PAYLOAD_BRANCH"
-            if git show "FETCH_HEAD:${payload_path}" > /tmp/payload.json 2>/dev/null; then
-              found=1
-              break
-            fi
-            sleep 5
-          done
-          test "$found" -eq 1
-          python - <<'PY'
-          import base64, hashlib, json, os, subprocess
-          from pathlib import Path
-          payload = json.loads(Path('/tmp/payload.json').read_text())
-          if str(payload['run_id']) != os.environ['GITHUB_RUN_ID']:
-              raise SystemExit('run mismatch')
-          Path('/tmp/key.enc').write_bytes(base64.b64decode(payload['encrypted_key_b64']))
-          subprocess.run([
-              'openssl','pkeyutl','-decrypt','-inkey','/tmp/private.pem',
-              '-in','/tmp/key.enc','-out','/tmp/key.bin',
-              '-pkeyopt','rsa_padding_mode:oaep','-pkeyopt','rsa_oaep_md:sha256'
-          ], check=True)
-          key = Path('/tmp/key.bin').read_bytes()
-          cipher = base64.b64decode(payload['ciphertext_b64'])
-          stream = b''.join(
-              hashlib.sha256(key + i.to_bytes(8,'big')).digest()
-              for i in range((len(cipher)+31)//32)
-          )
-          cert = bytes(a ^ b for a,b in zip(cipher, stream))
-          if len(cert) != int(os.environ['CERT_BYTES']):
-              raise SystemExit('byte mismatch')
-          if hashlib.sha256(cert).hexdigest() != os.environ['CERT_SHA256']:
-              raise SystemExit('digest mismatch')
-          Path('/tmp/certificate.lean').write_bytes(cert)
-          PY
+          test "$(wc -c < "$CERT_PATH")" -eq "$CERT_BYTES"
+          echo "$CERT_SHA256  $CERT_PATH" | sha256sum -c -
 
       - uses: actions/checkout@v4
         with:
@@ -117,7 +65,7 @@ jobs:
               'equation2': 'x = (y ◇ z) ◇ ((x ◇ z) ◇ x)',
               'answer': False,
           }
-          code = Path('/tmp/certificate.lean').read_text()
+          code = Path(os.environ['CERT_PATH']).read_text()
           result = verify_answer(problem, json.dumps({'verdict':'false','code':code}, ensure_ascii=False))
           result['run_id'] = os.environ['GITHUB_RUN_ID']
           result['official_commit'] = os.environ['OFFICIAL_COMMIT']
@@ -127,10 +75,6 @@ jobs:
           )
           print(result.get('status'), result.get('error_code'))
           PY
-
-      - name: Erase plaintext and private key
-        if: always()
-        run: rm -rf transport /tmp/private.pem /tmp/payload.json /tmp/key.enc /tmp/key.bin /tmp/certificate.lean
 
       - uses: actions/upload-artifact@v4
         if: always()
