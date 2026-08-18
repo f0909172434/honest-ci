@@ -15,21 +15,6 @@ inductive CandidateCarrier : Type
   | .nonneg (Nat.succ (Nat.succ n)) => .negative n
   | .negative n => .nonneg (Nat.succ (Nat.succ n))
 
-theorem reflectZero_twice (x : CandidateCarrier) :
-    reflectZero (reflectZero x) = x := by
-  cases x with
-  | nonneg n => cases n <;> rfl
-  | negative n => rfl
-
-theorem reflectOne_twice (x : CandidateCarrier) :
-    reflectOne (reflectOne x) = x := by
-  cases x with
-  | nonneg n =>
-      cases n with
-      | zero => rfl
-      | succ n => cases n <;> rfl
-  | negative n => rfl
-
 @[reducible] def candidateOp
     (left right : CandidateCarrier) : CandidateCarrier :=
   match left with
@@ -44,31 +29,61 @@ theorem candidateLaw (x y z : CandidateCarrier) :
     x = candidateOp y (candidateOp (candidateOp z (candidateOp y y)) x) := by
   cases y with
   | nonneg yn =>
-      cases z with
-      | nonneg zn =>
-          cases yn with
-          | zero =>
-              change x = reflectZero (reflectZero x)
-              exact (reflectZero_twice x).symm
-          | succ yn =>
-              change x = reflectZero (reflectZero x)
-              exact (reflectZero_twice x).symm
-      | negative zn =>
-          cases yn with
-          | zero =>
-              change x = reflectZero (reflectZero x)
-              exact (reflectZero_twice x).symm
-          | succ yn =>
-              change x = reflectZero (reflectZero x)
-              exact (reflectZero_twice x).symm
+      cases yn with
+      | zero =>
+          cases z with
+          | nonneg zn =>
+              cases x with
+              | nonneg xn =>
+                  cases xn with
+                  | zero => rfl
+                  | succ xn => rfl
+              | negative xn => rfl
+          | negative zn =>
+              cases x with
+              | nonneg xn =>
+                  cases xn with
+                  | zero => rfl
+                  | succ xn => rfl
+              | negative xn => rfl
+      | succ yn =>
+          cases z with
+          | nonneg zn =>
+              cases x with
+              | nonneg xn =>
+                  cases xn with
+                  | zero => rfl
+                  | succ xn => rfl
+              | negative xn => rfl
+          | negative zn =>
+              cases x with
+              | nonneg xn =>
+                  cases xn with
+                  | zero => rfl
+                  | succ xn => rfl
+              | negative xn => rfl
   | negative yn =>
       cases z with
       | nonneg zn =>
-          change x = reflectOne (reflectOne x)
-          exact (reflectOne_twice x).symm
+          cases x with
+          | nonneg xn =>
+              cases xn with
+              | zero => rfl
+              | succ xn =>
+                  cases xn with
+                  | zero => rfl
+                  | succ xn => rfl
+          | negative xn => rfl
       | negative zn =>
-          change x = reflectOne (reflectOne x)
-          exact (reflectOne_twice x).symm
+          cases x with
+          | nonneg xn =>
+              cases xn with
+              | zero => rfl
+              | succ xn =>
+                  cases xn with
+                  | zero => rfl
+                  | succ xn => rfl
+          | negative xn => rfl
 
 def submission : Goal := by
   refine ⟨CandidateCarrier, candidateMagma, ?_, ?_⟩
