@@ -1,0 +1,141 @@
+name: Ephemeral Candidate 25 Lean diagnostic
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/ephemeral-lean-diagnostic.yml'
+
+permissions:
+  contents: read
+
+env:
+  OFFICIAL_COMMIT: '2848228ff490422442878fd6f5abaf4cfa95257d'
+  CERT_BYTES: '637'
+  CERT_SHA256: '6e49699df01606d154b1aae4cb85a03acf3563fa153805637d422667fe1a5903'
+  PAYLOAD_BRANCH: 'agent/ephemeral-actions-probe'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Generate one-time RSA transport key
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p transport
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out /tmp/private.pem
+          openssl pkey -in /tmp/private.pem -pubout -out transport/public.pem
+          printf '%s\n' "$GITHUB_RUN_ID" > transport/run-id.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate25-diagnostic-public-key-${{ github.run_id }}
+          path: transport/
+          retention-days: 1
+
+      - name: Receive encrypted certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          payload_path="ephemeral/candidate25-diagnostic-${GITHUB_RUN_ID}.json"
+          found=0
+          for attempt in $(seq 1 240); do
+            git fetch --quiet origin "$PAYLOAD_BRANCH"
+            if git show "FETCH_HEAD:${payload_path}" > /tmp/payload.json 2>/dev/null; then
+              found=1
+              break
+            fi
+            sleep 5
+          done
+          test "$found" -eq 1
+          python - <<'PY'
+          import base64, hashlib, json, os, subprocess
+          from pathlib import Path
+          payload = json.loads(Path('/tmp/payload.json').read_text())
+          if str(payload['run_id']) != os.environ['GITHUB_RUN_ID']:
+              raise SystemExit('run mismatch')
+          Path('/tmp/key.enc').write_bytes(base64.b64decode(payload['encrypted_key_b64']))
+          subprocess.run([
+              'openssl','pkeyutl','-decrypt','-inkey','/tmp/private.pem',
+              '-in','/tmp/key.enc','-out','/tmp/key.bin',
+              '-pkeyopt','rsa_padding_mode:oaep','-pkeyopt','rsa_oaep_md:sha256'
+          ], check=True)
+          key = Path('/tmp/key.bin').read_bytes()
+          cipher = base64.b64decode(payload['ciphertext_b64'])
+          stream = b''.join(
+              hashlib.sha256(key + i.to_bytes(8,'big')).digest()
+              for i in range((len(cipher)+31)//32)
+          )
+          cert = bytes(a ^ b for a,b in zip(cipher, stream))
+          if len(cert) != int(os.environ['CERT_BYTES']):
+              raise SystemExit('byte mismatch')
+          if hashlib.sha256(cert).hexdigest() != os.environ['CERT_SHA256']:
+              raise SystemExit('digest mismatch')
+          Path('/tmp/certificate.lean').write_bytes(cert)
+          PY
+
+      - uses: actions/checkout@v4
+        with:
+          repository: SAIRcompetition/equational-theories-lean-stage2
+          ref: ${{ env.OFFICIAL_COMMIT }}
+          path: official
+
+      - name: Build pinned official environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd official
+          SKIP_DOCKER=1 bash scripts/setup.sh
+          test -f .env.judge
+
+      - name: Capture the full sanitized Judge result
+        shell: bash
+        run: |
+          set -euo pipefail
+          source official/.env.judge
+          mkdir -p diagnostic-result
+          python - <<'PY'
+          import json, os, sys
+          from pathlib import Path
+          root = Path.cwd()
+          sys.path.insert(0, str(root / 'official'))
+          from judge.verify import verify_answer
+          problem = {
+              'id': 'hard2_0027',
+              'eq1_id': 1167,
+              'eq2_id': 1763,
+              'equation1': 'x = y ◇ ((z ◇ (y ◇ y)) ◇ x)',
+              'equation2': 'x = (y ◇ z) ◇ ((x ◇ z) ◇ x)',
+              'answer': False,
+          }
+          code = Path('/tmp/certificate.lean').read_text()
+          result = verify_answer(problem, json.dumps({'verdict':'false','code':code}, ensure_ascii=False))
+          result['run_id'] = os.environ['GITHUB_RUN_ID']
+          result['official_commit'] = os.environ['OFFICIAL_COMMIT']
+          result['certificate_sha256'] = os.environ['CERT_SHA256']
+          Path('diagnostic-result/result.json').write_text(
+              json.dumps(result, indent=2, sort_keys=True) + '\n'
+          )
+          print(result.get('status'), result.get('error_code'))
+          PY
+
+      - name: Erase plaintext and private key
+        if: always()
+        run: rm -rf transport /tmp/private.pem /tmp/payload.json /tmp/key.enc /tmp/key.bin /tmp/certificate.lean
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate25-lean-diagnostic-${{ github.run_id }}
+          path: diagnostic-result/result.json
+          if-no-files-found: warn
+          retention-days: 1
