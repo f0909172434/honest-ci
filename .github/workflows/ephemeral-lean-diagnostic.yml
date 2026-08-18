@@ -12,8 +12,8 @@ permissions:
 env:
   OFFICIAL_COMMIT: '2848228ff490422442878fd6f5abaf4cfa95257d'
   CERT_PATH: 'ephemeral/candidate25-generated-v2.lean'
-  CERT_BYTES: '2560'
-  CERT_SHA256: '249ebca4ffffe17eb36905df431b550e26a170a5212f920b39d0e3ea06367aa6'
+  CERT_BYTES: '2892'
+  CERT_SHA256: 'b9f0e39dfdfa92aeae45fbb3529b547ff2ddf39581ee4d7e0c6f05a63a89f2ca'
 
 jobs:
   diagnose:
