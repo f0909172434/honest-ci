@@ -1,9 +1,6 @@
-name: Ephemeral public runner probe
+name: Ephemeral Candidate 25 official Lean gate
 
 on:
-  push:
-    branches:
-      - agent/ephemeral-actions-probe
   pull_request:
     branches:
       - main
@@ -13,14 +10,128 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ephemeral-candidate25-official-gate
+  cancel-in-progress: false
+
+env:
+  OFFICIAL_COMMIT: '2848228ff490422442878fd6f5abaf4cfa95257d'
+  CERT_BYTES: '637'
+  CERT_SHA256: '6e49699df01606d154b1aae4cb85a03acf3563fa153805637d422667fe1a5903'
+  KEY_SHA256: '5bf98b1a27c80447fc31c313fa8a5a3f0749eff6e85795ea3d2e110a818437d3'
+  CERT_CIPHERTEXT_B64: 'XN4+ZVEicR6R2rMoYGCkmIoAOBTDPVy2p7JHtu+DYx32E0nqsHrVVydWgZR9vxv8M/Qeon1KQ2yNVZfTI/otHytcuYf2b8XsaM9sTdYbCBL396P73+W+sBLUsgrs7tCU1mL8rxHrW1oSWadRDG4mCXv6/wpyNtwE2aVPsAwMbgxuNPZn9YSLE6yn8x8ngKy6hEw2TnzozTh/z4yDXencXjsI5gM46r+aZgEU2SOkvLaQR11BuNVC2RkmcMGUqmTj3OCnWltu4ijzkelpfXjFlTIn16ai7CbP1BYiXlj5/KbKrV1VZ2GjuoEYTgHQ9lAPpB4l+ioPmBC99+gSNhcCpqgXD/E6tNoSO+kBD197PbzgcxIa5WK4naMnoKXwe9UgiL8JF8dDHDam4h1iozK/ryQo/qP8L70EtMoMB10G3ZQdOV1WFPkoDaO5VOcAy2k/teP47JXwfEaQPYMifDX0tEvlbqFhJ6SAE6eACVKSaAIpoVjBv6XaNCOqHhKAekj1BFt4iD/FW/IYtCPuCLjKQueZTKz0BecSghRmVSYQSXV+FMc1GdAuj4mYarmelDXRVZIzsSrWq9oc3nVPcrtHz0QO855Gs/4xhgUQ+tftCnPdPgLoXf7qHFZtCHcodgt4JlqH1EjRAUeFjYon4KNgTsY1d7M0kYXbkcLcu3NvfeOgoFelitxcE94VagxebGCyO//sIOsw3G6uvbAwqAffy/TMOn+9x/8FETkit0lQ2KHIjREDvWWcG88H1EJ71/oMWJlQaEmvCU5NqpHY3JXDYCFJg5vLrJOcsS5XQLZh3O8U8UwpJ6B6qRLTLqBK6DVgXG8JKYqyLnCNKjfELA=='
+  KEY_URL: 'https://raw.githubusercontent.com/f0909172434/sair-math-distillation-challenge/agent/candidate25-official-gate-secret/experiments/megaeval/candidate25/.official-gate-key?token=CFKVUWJS3UWYTDL24654J63KQR24NAA'
+
 jobs:
-  probe:
+  official-lean:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 90
     steps:
-      - name: Confirm runner execution
+      - uses: actions/checkout@v4
+
+      - name: Recover the one-time encrypted certificate
+        shell: bash
         run: |
           set -euo pipefail
-          echo "runner-started"
-          python --version
-          uname -a
+          umask 077
+          curl --fail --silent --show-error --location "$KEY_URL" -o /tmp/candidate25-key.hex
+          python - <<'PY'
+          import base64
+          import hashlib
+          import os
+          from pathlib import Path
+
+          key_hex = Path('/tmp/candidate25-key.hex').read_text(encoding='utf-8').strip()
+          key = bytes.fromhex(key_hex)
+          if hashlib.sha256(key).hexdigest() != os.environ['KEY_SHA256']:
+              raise SystemExit('ephemeral key digest mismatch')
+          cipher = base64.b64decode(os.environ['CERT_CIPHERTEXT_B64'], validate=True)
+          stream = bytearray()
+          for counter in range((len(cipher) + 31) // 32):
+              stream.extend(hashlib.sha256(key + counter.to_bytes(8, 'big')).digest())
+          certificate = bytes(left ^ right for left, right in zip(cipher, stream))
+          if len(certificate) != int(os.environ['CERT_BYTES']):
+              raise SystemExit('certificate byte count mismatch')
+          if hashlib.sha256(certificate).hexdigest() != os.environ['CERT_SHA256']:
+              raise SystemExit('certificate digest mismatch')
+          Path('/tmp/candidate25-certificate.lean').write_bytes(certificate)
+          PY
+
+      - name: Check out the pinned official evaluator
+        uses: actions/checkout@v4
+        with:
+          repository: SAIRcompetition/equational-theories-lean-stage2
+          ref: ${{ env.OFFICIAL_COMMIT }}
+          path: official
+
+      - name: Build the pinned official Lean environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd official
+          SKIP_DOCKER=1 bash scripts/setup.sh
+          test -f .env.judge
+
+      - name: Require official accepted false verdict
+        shell: bash
+        run: |
+          set -euo pipefail
+          source official/.env.judge
+          mkdir -p gate-result
+          python - <<'PY'
+          import json
+          import os
+          import sys
+          from pathlib import Path
+
+          root = Path.cwd()
+          sys.path.insert(0, str(root / 'official'))
+          from judge.verify import verify_answer
+
+          problem = {
+              'id': 'hard2_0027',
+              'eq1_id': 1167,
+              'eq2_id': 1763,
+              'equation1': 'x = y ◇ ((z ◇ (y ◇ y)) ◇ x)',
+              'equation2': 'x = (y ◇ z) ◇ ((x ◇ z) ◇ x)',
+              'answer': False,
+          }
+          code = Path('/tmp/candidate25-certificate.lean').read_text(encoding='utf-8')
+          result = verify_answer(
+              problem,
+              json.dumps({'verdict': 'false', 'code': code}, ensure_ascii=False),
+          )
+          public_result = {
+              'record_type': 'candidate25_ephemeral_official_lean_gate',
+              'official_commit': os.environ['OFFICIAL_COMMIT'],
+              'certificate_bytes': int(os.environ['CERT_BYTES']),
+              'certificate_sha256': os.environ['CERT_SHA256'],
+              'status': result.get('status'),
+              'verdict': result.get('verdict'),
+              'error_code': result.get('error_code'),
+              'axioms': result.get('axioms', []),
+              'direct_declarations': result.get('direct_declarations', []),
+              'passed': result.get('status') == 'accepted' and result.get('verdict') == 'false',
+          }
+          Path('gate-result/result.json').write_text(
+              json.dumps(public_result, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(public_result, sort_keys=True))
+          if not public_result['passed']:
+              print(result.get('stderr', ''), file=sys.stderr)
+              raise SystemExit('pinned official Judge did not accept the False certificate')
+          PY
+
+      - name: Erase one-time plaintext
+        if: always()
+        shell: bash
+        run: rm -f /tmp/candidate25-key.hex /tmp/candidate25-certificate.lean
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate25-ephemeral-official-gate-${{ github.run_id }}
+          path: gate-result/result.json
+          if-no-files-found: warn
+          retention-days: 7
