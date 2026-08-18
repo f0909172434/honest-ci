@@ -11,8 +11,8 @@ permissions:
 
 env:
   OFFICIAL_COMMIT: '2848228ff490422442878fd6f5abaf4cfa95257d'
-  CERT_BYTES: '2385'
-  CERT_SHA256: '2176cd5c00ba1d2efa06c8b8e8fc7299e1ccfeb75dcc39ca35208c6b4687c602'
+  CERT_BYTES: '2560'
+  CERT_SHA256: '249ebca4ffffe17eb36905df431b550e26a170a5212f920b39d0e3ea06367aa6'
   PAYLOAD_BRANCH: 'agent/ephemeral-actions-probe'
 
 jobs:
