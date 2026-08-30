@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+      <title id="title">HonestCI</title><desc id="desc">Make green CI mean the tests you expected actually ran.</desc>
+      <rect width="1200" height="360" fill="#d9ee64"/><path d="M0 306h1200M676 0v360" stroke="#181813" stroke-opacity=".28"/>
+      <g font-family="Arial, Helvetica, sans-serif"><text x="54" y="61" fill="#e85f4f" font-size="15" font-weight="700" letter-spacing="3">HC / 03 / PUBLIC WORK</text>
+      <text x="54" y="166" fill="#181813" font-size="62" font-weight="750" letter-spacing="-3">HonestCI</text>
+      <text x="54" y="216" fill="#181813" fill-opacity=".68" font-size="19">Make green CI mean the tests you expected actually ran.</text>
+      <text x="54" y="329" fill="#181813" fill-opacity=".62" font-size="13" letter-spacing="2">CLAIM  /  EVIDENCE  /  BOUNDARY</text></g>
+      <g><path d="M760 70h330v220H760z" fill="none" stroke="#181813" stroke-width="3"/><path d="M760 180h330" stroke="#181813" stroke-width="3"/><path d="M920 70v220" stroke="#181813" stroke-width="3"/><path d="M822 166l30 30 62-73" fill="none" stroke="#e85f4f" stroke-width="17"/><path d="M972 130h75M972 164h75M972 198h47" stroke="#181813" stroke-width="7"/></g>
+    </svg>
