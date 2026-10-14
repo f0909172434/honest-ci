@@ -1,6 +1,6 @@
 {
   "name": "honest-ci",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Make green CI mean the tests you expected actually ran.",
   "license": "MIT",
   "author": "Wang Chih Kai",
@@ -69,8 +69,8 @@
     "@actions/github": "^9.1.1",
     "commander": "^14.0.0",
     "cross-spawn": "^7.0.6",
-    "fast-glob": "^3.3.3",
     "fast-xml-parser": "^5.2.5",
+    "tinyglobby": "^0.2.17",
     "yaml": "^2.8.1"
   },
   "devDependencies": {

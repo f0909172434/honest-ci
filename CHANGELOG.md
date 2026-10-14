@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.5
+
+- Replace `fast-glob` with `tinyglobby` for report and workflow discovery.
+  `fast-glob` depended on `braces` <= 3.0.3, which has a high
+  stack-exhaustion advisory (GHSA-vfj7-8cjw-p6xm) and no patched release.
+  Matching options and results are unchanged, including dot files,
+  symbolic links, and the workspace boundary check.
+- Update bundled runtime dependencies: `undici` 6.29.0 (fixes two WebSocket
+  denial-of-service advisories), `fast-xml-parser` 5.11.2, and `yaml`.
+- Runtime behavior, CLI commands, configuration, finding codes, exit codes,
+  Action inputs and outputs, and Evidence Bundle v1 fields are unchanged.
+
 ## 1.0.4
 
 - Replace the green shield Marketplace badge with a purple `check-square` to

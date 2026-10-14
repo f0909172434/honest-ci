@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 import { parse } from "yaml";
 
 import { resolveExistingInsideWorkspace, toPosixPath } from "./paths.js";
@@ -60,13 +60,13 @@ function inspectWorkflow(value: unknown, file: string): Finding[] {
 }
 
 export async function findWorkflowFiles(config: HonestConfig, workspace: string): Promise<string[]> {
-  const files = await fg(config.workflows.paths, {
+  const files = await glob(config.workflows.paths, {
     absolute: true,
     cwd: workspace,
     dot: true,
+    expandDirectories: false,
     followSymbolicLinks: false,
     onlyFiles: true,
-    unique: true,
   });
   return Promise.all(
     files.sort().map((file) => resolveExistingInsideWorkspace(workspace, file, "Workflow path")),

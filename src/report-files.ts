@@ -2,20 +2,20 @@ import { createHash } from "node:crypto";
 import { readFile, realpath, stat } from "node:fs/promises";
 import path from "node:path";
 
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 import { isInsideWorkspace, toPosixPath } from "./paths.js";
 import { HonestCIInputError, type FileSignature, type HonestConfig, type ReportConfig, type ReportSnapshots } from "./types.js";
 
 export async function findReportFiles(report: ReportConfig, workspace: string): Promise<string[]> {
   const canonicalWorkspace = await realpath(workspace);
-  const matches = await fg(report.paths, {
+  const matches = await glob(report.paths, {
     absolute: true,
     cwd: workspace,
     dot: true,
+    expandDirectories: false,
     followSymbolicLinks: false,
     onlyFiles: true,
-    unique: true,
   });
   const files = new Map<string, string>();
   for (const match of matches) {
