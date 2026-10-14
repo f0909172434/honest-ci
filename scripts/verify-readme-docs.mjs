@@ -34,7 +34,7 @@ if (config?.version !== 1 || config?.reports?.[0]?.format !== "junit") {
 const workflow = parse(yamlBlocks[1]);
 const steps = workflow?.jobs?.test?.steps;
 if (!Array.isArray(steps)) throw new Error("README workflow example does not contain jobs.test.steps.");
-const gate = steps.find((step) => step?.uses === "f0909172434/honest-ci@v1.0.4");
+const gate = steps.find((step) => step?.uses === "f0909172434/honest-ci@v1.0.5");
 if (gate?.with?.config !== "honest-ci.yml" || !gate?.with?.command?.includes("outputFile.junit=reports/junit.xml")) {
   throw new Error("README workflow and report configuration paths are not aligned.");
 }
