@@ -105,6 +105,17 @@ describe("checkReports", () => {
     expect(result.status).toBe("passed");
   });
 
+  it("rejects report files reached through an external directory link", async () => {
+    const root = await workspace();
+    const outside = await mkdtemp(path.join(os.tmpdir(), "honest-ci-report-outside-"));
+    roots.push(outside);
+    await writeFile(path.join(outside, "junit.xml"), '<testsuite tests="3"/>');
+    await symlink(outside, path.join(root, "linked"), process.platform === "win32" ? "junction" : "dir");
+
+    await expect(checkReports(config({ paths: ["linked/*.xml"] }), root, { baseline: null }))
+      .rejects.toThrow(/leaves the workspace/i);
+  });
+
   it("fails when a wrapped run leaves an existing report unchanged", async () => {
     const root = await workspace();
     const report = path.join(root, "reports", "junit.xml");
