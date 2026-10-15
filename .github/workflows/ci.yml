@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node: [20, 24]
+        node: [22, 24, 26]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -58,16 +58,34 @@ jobs:
       - run: git diff --exit-code -- dist
       - run: npm pack --dry-run
 
+  runtime-node20:
+    name: runtime (${{ matrix.os }}, 20)
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 20
+      # The development toolchain needs Node.js 22.12+, but the packed 1.x CLI
+      # still supports Node.js 20, so exercise the committed bundle directly.
+      - run: npm run package:smoke
+
   ci-gate:
     name: ci-gate
     if: always()
-    needs: [verify, package]
+    needs: [verify, package, runtime-node20]
     runs-on: ubuntu-latest
     steps:
       - name: Require every CI job to pass
         env:
           VERIFY_RESULT: ${{ needs.verify.result }}
           PACKAGE_RESULT: ${{ needs.package.result }}
+          RUNTIME_NODE20_RESULT: ${{ needs.runtime-node20.result }}
         run: |
           test "$VERIFY_RESULT" = "success"
           test "$PACKAGE_RESULT" = "success"
+          test "$RUNTIME_NODE20_RESULT" = "success"

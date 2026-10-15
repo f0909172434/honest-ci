@@ -8,8 +8,14 @@ verified behavior from copyable recipes and community reports.
 ## Continuously verified
 
 The repository CI exercises the source Action on GitHub-hosted Ubuntu, Windows,
-and macOS runners with Node.js 20 and 24. It also builds and installs a packed
-npm tarball in a clean temporary project.
+and macOS runners with Node.js 22, 24, and 26. It also builds and installs a
+packed npm tarball in a clean temporary project, and installs the committed CLI
+bundle on the same three operating systems with Node.js 20.
+
+Node.js 20 reached its upstream end of life on 2026-04-30. HonestCI 1.x keeps
+the documented Node.js 20 CLI runtime boundary, but the development toolchain
+used to build and test HonestCI itself requires Node.js 22.12 or newer. The
+GitHub Action always runs on the runner-provided Node.js 24 runtime.
 
 The parser tests cover:
 
@@ -39,7 +45,7 @@ XML shape, path layout, and runner operating system can expose edge cases.
 | Area | HonestCI 1.x boundary |
 | --- | --- |
 | GitHub integration | GitHub Actions JavaScript Action |
-| CLI runtime | Node.js 20 or newer |
+| CLI runtime | Node.js 20 or newer (Node.js 20 is upstream end of life; prefer 22 or newer) |
 | Verified hosted runners | Ubuntu, Windows, macOS |
 | Report input | JUnit XML files selected by workspace-relative globs |
 | Multiple files | Aggregated per named report; duplicate matches are counted once |
