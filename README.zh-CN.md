@@ -19,7 +19,7 @@ HonestCI 会包裹测试命令、验证本次新生成或变更的 JUnit 证据�
 加入后：JUnit XML 未更新或不存在         → HCI003 / HCI001 → 阻止
 ```
 
-发布状态：`v1.0.5`。1.x 公开接口保持加法兼容变更；可复现使用请固定 `v1.0.5`，moving `v1` 会跟随最新的兼容 1.x 版本。
+发布状态：`v1.0.6`。1.x 公开接口保持加法兼容变更；可复现使用请固定 `v1.0.6`，moving `v1` 会跟随最新的兼容 1.x 版本。
 
 ## 五分钟 Quick Start
 
@@ -44,7 +44,7 @@ workflows:
 在 checkout 和依赖安装步骤之后加入 Action，并将示例命令替换为你的 JUnit 测试命令。完整 commit pin 可避免标签移动时改变 workflow 内容。
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.5
+- uses: f0909172434/honest-ci@v1.0.6
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml
@@ -55,7 +55,7 @@ workflows:
 从 npm registry 安装固定版本的 CLI：
 
 ```console
-npm install --save-dev honest-ci@1.0.5
+npm install --save-dev honest-ci@1.0.6
 ```
 
 默认分支成功运行后，生成、检查并提交基准：
@@ -92,7 +92,7 @@ Action 只需要 `contents: read`，会写入 annotations 和 Job Summary，不�
 需要 Node.js 20 或更高版本。
 
 ```console
-npm install --save-dev honest-ci@1.0.5
+npm install --save-dev honest-ci@1.0.6
 npx honest-ci lint
 npx honest-ci run --config honest-ci.yml -- npm test
 npx honest-ci check --config honest-ci.yml
