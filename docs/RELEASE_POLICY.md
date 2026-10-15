@@ -22,5 +22,9 @@ Stable 1.0 additionally requires the RC npm package and Action to pass fresh ins
 External use is evidence, not permission. No fixed tester count blocks development or release. HonestCI has no telemetry.
 
 Publishing to npm, GitHub Releases, or GitHub Marketplace requires explicit
-maintainer approval after automated gates pass. Marketplace terms and the final
-publication action are human-controlled.
+maintainer approval after automated gates pass. Once the maintainer approves a
+release, the maintainer or an AI coding agent acting on the maintainer's behalf
+may tag it, approve the protected `npm` deployment, and publish or update the
+Marketplace listing from the reviewed release. Accepting new or changed
+Marketplace terms, completing two-factor authentication, and handling
+credentials remain the maintainer's own actions.

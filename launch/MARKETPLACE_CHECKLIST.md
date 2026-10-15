@@ -1,8 +1,9 @@
 # GitHub Marketplace release checklist
 
-This checklist prepares HonestCI for listing without performing the final
-Marketplace submission. The maintainer remains responsible for accepting the
-Marketplace terms and selecting **Publish**.
+This checklist prepares HonestCI for listing. After the maintainer approves a
+release, the maintainer or an AI coding agent acting on the maintainer's behalf
+may publish or update the listing. Accepting the Marketplace terms and
+completing two-factor authentication remain the maintainer's own actions.
 
 ## Automated prerequisites
 
@@ -34,12 +35,12 @@ Use the README's reproducible before/after image and five-minute Action example.
 Do not claim that HonestCI proves test quality, software correctness, or the
 absence of vulnerabilities.
 
-## Human-controlled publication
+## Publication
 
 1. Open the repository's Marketplace draft from the latest reviewed release.
 2. Verify the listing preview and links.
-3. Review and accept the Marketplace terms; GitHub also requires 2FA for the
-   final publication action.
+3. If GitHub asks for new or changed Marketplace terms or for 2FA, stop and
+   hand that step to the maintainer.
 4. Publish the listing.
 5. Install the listed Action into a disposable public test repository and
    verify that it resolves the intended protected semantic-version tag.

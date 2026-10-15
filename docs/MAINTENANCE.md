@@ -48,7 +48,9 @@ they solve an observed onboarding or compatibility problem.
 Use the hard gates in [the release policy](RELEASE_POLICY.md). Summarize user-
 visible changes in `CHANGELOG.md`, link the issue or pull request that motivated
 each feedback-driven change, and run the public registry smoke matrix for the
-exact version. Marketplace publication and public announcements remain explicit
+exact version. After the maintainer approves a release, the maintainer or an
+AI coding agent acting on the maintainer's behalf may update the Marketplace
+listing; accepting Marketplace terms and public announcements remain explicit
 maintainer actions.
 
 ## Weekly launch review
