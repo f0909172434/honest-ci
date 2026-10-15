@@ -47,7 +47,7 @@ The four README files contain the complete workflow and configuration. Install
 the pinned npm version:
 
 ```console
-npm install --save-dev honest-ci@1.0.5
+npm install --save-dev honest-ci@1.0.6
 npx honest-ci baseline write --config honest-ci.yml
 ```
 

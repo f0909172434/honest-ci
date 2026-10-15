@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.6
 
 - Node.js 20 reached upstream end of life on 2026-04-30. The packed 1.x CLI
   still supports Node.js 20 and is now verified on Ubuntu, Windows, and macOS

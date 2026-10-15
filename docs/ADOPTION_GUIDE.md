@@ -66,7 +66,7 @@ From a clean checkout of a healthy default branch, install the pinned CLI and
 write a fresh baseline with the same command used in CI:
 
 ```console
-npm install --save-dev honest-ci@1.0.5
+npm install --save-dev honest-ci@1.0.6
 npx honest-ci baseline write --config honest-ci.yml -- npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
 git diff -- .honest-ci/baseline.json
 git add .honest-ci/baseline.json
@@ -115,7 +115,7 @@ Action. HonestCI protects a pull-request baseline by reading it from the base
 commit, but it does not independently protect the configuration or workflow
 from review-approved changes.
 
-Prefer the immutable `f0909172434/honest-ci@v1.0.5` reference for reproducible
+Prefer the immutable `f0909172434/honest-ci@v1.0.6` reference for reproducible
 workflows. The `v1` tag intentionally moves to compatible 1.x releases.
 
 ## Intentional test-count changes
