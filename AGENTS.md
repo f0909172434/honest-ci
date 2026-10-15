@@ -1,8 +1,11 @@
 # Working on HonestCI
 
 HonestCI is a TypeScript CLI and GitHub Action that checks whether the expected
-tests actually ran. Use Node.js 20 or newer; Node.js 24 matches the current CI
-matrix. Dependencies are locked in `package-lock.json`.
+tests actually ran. Development requires Node.js 22.12 or newer; Node.js 24
+builds the committed `dist/` bundles and releases. The packed CLI still
+supports Node.js 20 for 1.x users, so keep `@types/node` on the Node.js 20 line
+and do not use newer runtime APIs or runtime dependencies that drop Node.js 20.
+Dependencies are locked in `package-lock.json`.
 
 ## Setup and validation
 

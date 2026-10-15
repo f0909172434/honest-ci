@@ -2,7 +2,7 @@
 
 Issues and focused pull requests are welcome. Before opening a change:
 
-1. Run `npm ci`.
+1. Use Node.js 22.12 or newer (Node.js 24 is recommended), then run `npm ci`.
 2. Run `npm run verify`.
 3. If behavior changes, add a fixture or test that proves the old and new outcomes.
 4. Keep definite failures separate from heuristic warnings.

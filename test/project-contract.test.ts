@@ -75,7 +75,7 @@ describe("public project contract", () => {
     const smoke = await readFile("scripts/registry-smoke.mjs", "utf8");
     expect(workflow).toContain("workflow_dispatch:");
     expect(workflow).toContain("os: [ubuntu-latest, macos-latest, windows-latest]");
-    expect(workflow).toContain("node: [20, 24]");
+    expect(workflow).toContain("node: [20, 22, 24, 26]");
     expect(workflow).toContain("npm run registry:smoke");
     expect(smoke).toContain("https://registry.npmjs.org/");
     expect(smoke).toContain("rigorgraph-evidence-bundle");
@@ -123,7 +123,9 @@ describe("public project contract", () => {
     }
     const ci = await readFile(`${directory}/ci.yml`, "utf8");
     expect(ci).toContain("ci-gate:");
-    expect(ci).toContain("needs: [verify, package]");
+    expect(ci).toContain("needs: [verify, package, runtime-node20]");
+    expect(ci).toContain("node: [22, 24, 26]");
+    expect(ci).toContain('test "$RUNTIME_NODE20_RESULT" = "success"');
   });
 
   it("pins official Actions in copy-paste documentation", async () => {

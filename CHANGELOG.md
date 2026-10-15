@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- Node.js 20 reached upstream end of life on 2026-04-30. The packed 1.x CLI
+  still supports Node.js 20 and is now verified on Ubuntu, Windows, and macOS
+  through a dedicated Node.js 20 runtime job. Source CI moves to Node.js 22,
+  24, and 26, and the registry smoke matrix covers Node.js 20, 22, 24, and 26.
+- Developing HonestCI now requires Node.js 22.12 or newer. Update the
+  development toolchain to `@vercel/ncc` 0.45 and TypeScript 7. The only
+  bundle change is ncc's asset-path helper, which now decodes percent-encoded
+  install paths such as directories containing spaces.
+- Runtime behavior, CLI commands, configuration, finding codes, exit codes,
+  Action inputs and outputs, and Evidence Bundle v1 fields are unchanged.
+
 ## 1.0.5
 
 - Replace `fast-glob` with `tinyglobby` for report and workflow discovery.

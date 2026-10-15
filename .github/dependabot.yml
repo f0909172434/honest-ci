@@ -15,9 +15,6 @@ updates:
       - dependency-name: "*"
         update-types:
           - version-update:semver-major
-      - dependency-name: "@vercel/ncc"
-        versions:
-          - ">=0.43.0"
   - package-ecosystem: github-actions
     directory: /
     schedule:
