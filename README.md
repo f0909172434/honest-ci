@@ -13,32 +13,36 @@
 
 **Make green CI mean the tests you expected actually ran.**
 
-HonestCI wraps a test command, verifies fresh JUnit XML evidence, compares the
-observed test count with a trusted default-branch baseline, and warns about
-suspicious GitHub Actions patterns.
+HonestCI wraps your test command and refuses to call a run green unless it can
+see the evidence. It checks that the run produced fresh JUnit XML, compares the
+test count with a trusted baseline from the default branch, and warns about
+GitHub Actions patterns that commonly hide failures.
 
 ![A reproducible false-green run before and after HonestCI](launch/assets/false-green-before-after.png)
 
-The [reproducible demo](launch/DEMO.md) uses the same zero-test runner twice:
-it exits successfully on its own, then HonestCI blocks it with
-`HCI004_ZERO_TESTS`.
+The [reproducible demo](launch/DEMO.md) runs the same zero-test runner twice.
+On its own the runner exits successfully. Wrapped by HonestCI, the same run is
+blocked with `HCI004_ZERO_TESTS`.
 
 For a broader local check, `npm run demo:scenarios` reproduces seven isolated
-missing, zero-test, stale, reduced-count, failing-test, and report-discovery
-cases. See the [scenario matrix](demo/scenarios/README.md).
+cases: a missing report, zero tests, a stale report, a reduced test count, a
+failing test, and report discovery. The [scenario matrix](demo/scenarios/README.md)
+lists each case and its expected result.
 
 ```text
 Ordinary runner:  npm test || true                 -> green
 With HonestCI:    missing, stale, or empty JUnit   -> finding -> blocked
 ```
 
-HonestCI complements test reporters. A reporter makes results readable;
-HonestCI checks whether the expected evidence is fresh and whether the observed
-test count still matches a trusted baseline. You can use both in the same job.
+HonestCI works alongside test reporters rather than replacing them. A reporter
+makes results readable. HonestCI checks whether the expected evidence is fresh
+and whether the observed test count still matches a trusted baseline. You can
+use both in the same job.
 
-Release status: `v1.0.6`. Stable 1.x interfaces are additive. Use the protected
-semantic-version tag `v1.0.6` for reproducibility; the moving `v1` Action tag
-follows the latest compatible 1.x release.
+The current release is `v1.0.6`. Changes within 1.x only add to the public
+interfaces. Pin the protected semantic-version tag `v1.0.6` when you need
+reproducible runs. The moving `v1` Action tag follows the latest compatible
+1.x release.
 
 ## Capabilities at a glance
 
@@ -50,16 +54,16 @@ follows the latest compatible 1.x release.
 | Workflow YAML | Common false-green patterns such as swallowed exits or permissive conditions | Heuristics are warnings, never proof |
 | Evidence output | Result plus hashes and allowlisted GitHub provenance | Optional JSON bundle for retention or downstream use |
 
-The Action adds annotations and a Job Summary. It also exposes `tests`,
-`failures`, `errors`, `skipped`, `baseline-tests`, `drop-percent`, `warnings`,
-and `evidence-path` outputs for later workflow steps.
+The Action also writes annotations and a Job Summary. Later workflow steps can
+read its `tests`, `failures`, `errors`, `skipped`, `baseline-tests`,
+`drop-percent`, `warnings`, and `evidence-path` outputs.
 
 ## Five-minute Quick Start
 
-This complete Vitest example wraps the test command, retains evidence on both
-pass and fail, and uses the pull request base commit as the trusted baseline.
-For Jest, pytest, or Maven, keep the structure and substitute a command from
-the [runner recipes](docs/RUNNER_RECIPES.md).
+The example below uses Vitest. It wraps the test command, keeps the evidence
+whether the run passes or fails, and uses the pull request's base commit as the
+trusted baseline. For Jest, pytest, or Maven, keep the same structure and take
+the test command from the [runner recipes](docs/RUNNER_RECIPES.md).
 
 First add `honest-ci.yml`:
 
@@ -120,16 +124,19 @@ jobs:
           path: .honest-ci/evidence.json
 ```
 
-Expected outcome: a fresh report with at least one test, no failures or errors,
-and no configured threshold violation passes. A missing or stale report, zero
-tests, a failed command, or an excessive baseline drop fails the Action and
-adds a stable `HCI...` annotation. The first run without a baseline can still
-pass its fixed checks, with `HCI101_BASELINE_MISSING` as a warning.
+A run passes when it produces a fresh report with at least one test, no
+failures or errors, and no configured threshold violation. A missing or stale
+report, zero tests, a failed command, or an excessive drop from the baseline
+fails the Action and adds a stable `HCI...` annotation. The first run has no
+baseline yet. It can still pass the fixed checks, and it reports
+`HCI101_BASELINE_MISSING` as a warning.
 
-The Action needs only `contents: read`. It does not comment on pull requests or
-upload evidence automatically; both behaviors remain explicit workflow choices.
+The Action needs only `contents: read`. It does not comment on pull requests,
+and it does not upload evidence by itself. Both remain explicit choices in
+your workflow.
 
-After a successful default-branch run, create and review the baseline:
+After a successful run on the default branch, create the baseline, review it,
+and commit it:
 
 ```console
 npm install --save-dev honest-ci@1.0.6
@@ -138,40 +145,42 @@ git add .honest-ci/baseline.json
 git commit -m "Add HonestCI baseline"
 ```
 
-Use the same tested JUnit command when writing the baseline. On pull requests,
-the Action reads the committed file from the base commit through the GitHub API,
-so the pull request cannot lower its own baseline merely by editing the workspace
-copy. See the [adoption guide](docs/ADOPTION_GUIDE.md) for advisory rollout,
-multiple suites, threshold selection, and branch-protection guidance.
+Write the baseline with the same JUnit command you test with. On pull requests,
+the Action reads the committed baseline from the base commit through the GitHub
+API, so a pull request cannot lower its own baseline by editing the copy in its
+workspace. The [adoption guide](docs/ADOPTION_GUIDE.md) covers advisory
+rollout, multiple suites, choosing thresholds, and branch protection.
 
 ## What it catches
 
-Definite, observable problems fail the run:
+These definite, observable problems fail the run:
 
-- the wrapped command returned nonzero;
-- a required report is missing, malformed, unsafe, or unchanged;
-- zero tests ran, the configured minimum was missed, or failures/errors exist;
-- the test count fell beyond the committed baseline threshold; or
-- the skipped ratio exceeded an explicitly configured limit.
+- The wrapped command returned a nonzero exit status.
+- A required report is missing, malformed, unsafe, or unchanged.
+- Zero tests ran, the configured minimum was not met, or failures or errors exist.
+- The test count fell further below the committed baseline than the threshold allows.
+- The skipped ratio exceeded an explicitly configured limit.
 
-Heuristics remain warnings, including `continue-on-error: true`, `|| true`,
-forced `exit 0`, Jest/Vitest `--passWithNoTests`, and dynamic conditions that
-may skip a test-like job or step. See the stable [finding codes](docs/FINDINGS.md).
+Heuristic matches stay warnings. They include `continue-on-error: true`,
+`|| true`, a forced `exit 0`, Jest or Vitest `--passWithNoTests`, and dynamic
+conditions that may skip a test-like job or step. The [finding codes](docs/FINDINGS.md)
+page lists every stable code.
 
 ## Result and failure semantics
 
 The GitHub Action fails its step when at least one definite error finding is
 present. Warnings are reported but do not fail the step. Invalid configuration,
-unsafe paths, or other unevaluable input also fail the Action as an input error.
+unsafe paths, or any other input that cannot be evaluated also fail the Action,
+as an input error.
 
 The CLI uses three exit statuses:
 
-- `0`: evaluable result with no definite error finding (warnings may exist);
-- `1`: one or more definite findings, such as a failed command or invalid report;
-- `2`: the configuration or input could not be evaluated.
+- `0` means the result was evaluated and has no definite error finding. Warnings may still be present.
+- `1` means there is at least one definite finding, such as a failed command or an invalid report.
+- `2` means the configuration or input could not be evaluated.
 
-Finding codes are the stable automation interface. Human-readable messages may
-improve during 1.x without changing a code's meaning.
+Automation should rely on the finding codes, which are stable. Human-readable
+messages may improve during 1.x without changing what a code means.
 
 ## How the gate works
 
@@ -190,29 +199,29 @@ workflow lint warnings -----------------------+
                   exit / Action status   annotations/summary   evidence JSON
 ```
 
-The CLI `run` path passes the test executable and arguments directly without a
-shell. The Action's `command` input is a shell command, because workflow authors
-normally provide one command string. Never construct that input from
-pull-request-controlled values. Paths are confined to the workspace, report
-globs do not follow symlinks, and JUnit containing DTD or entity declarations is
-rejected. The [technical overview](docs/TECHNICAL_OVERVIEW.md) documents the
-execution paths, parser behavior, baseline trust boundary, output schema, and
-security model in detail.
+The CLI `run` command passes the test executable and its arguments directly,
+without a shell. The Action's `command` input is a shell command, because
+workflow authors normally write one command string. Never build that input from
+values a pull request can control. All paths are confined to the workspace,
+report globs do not follow symlinks, and JUnit files containing DTD or entity
+declarations are rejected. The [technical overview](docs/TECHNICAL_OVERVIEW.md)
+describes the execution paths, parser behavior, baseline trust boundary, output
+schema, and security model in detail.
 
 ## When to use HonestCI
 
-Use it when a GitHub Actions job already produces JUnit XML and a green run
-should be backed by observable execution evidence. It is especially useful
-when test counts should not silently drop on a pull request.
+HonestCI fits a GitHub Actions job that already produces JUnit XML, where a
+green run should be backed by evidence that the tests actually executed. It is
+most useful when the number of tests should not quietly drop on a pull request.
 
-HonestCI is not the right tool for coverage analysis, flaky-test analytics,
-hosted dashboards, GitLab/CircleCI workflows, or proving that assertions are
-meaningful. Those remain explicit non-goals in 1.x.
+It is not the right tool for coverage analysis, flaky-test analytics, hosted
+dashboards, GitLab or CircleCI workflows, or proving that assertions are
+meaningful. These are explicit non-goals for 1.x.
 
-HonestCI also does not make `honest-ci.yml` or workflow files immutable. A pull
-request may propose weaker thresholds or a different command, so protect those
-files with normal review, CODEOWNERS, and branch rules when they are part of a
-required gate.
+HonestCI does not make `honest-ci.yml` or your workflow files immutable. A pull
+request can propose weaker thresholds or a different command. When these files
+are part of a required gate, protect them with normal review, CODEOWNERS, and
+branch rules.
 
 ## CLI
 
@@ -226,18 +235,19 @@ npx honest-ci check --config honest-ci.yml
 npx honest-ci baseline write --config honest-ci.yml -- npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
 ```
 
-Use `--format pretty` for people or `--format json` for automation. Exit status
-is 0 for pass, 1 for definite findings, and 2 for invalid input or configuration.
-Passing a test command to `baseline write` is recommended: HonestCI writes the
-baseline only when the command succeeds and the configured reports are fresh.
-The command remains optional for compatibility, but existing reports then carry
+Use `--format pretty` when a person reads the output and `--format json` for
+automation. The exit status is 0 for a pass, 1 for definite findings, and 2 for
+invalid input or configuration. We recommend passing a test command to
+`baseline write`. HonestCI then writes the baseline only when the command
+succeeds and the configured reports are fresh. The command is still optional
+for compatibility, but reports that already exist are then marked
 `HCI107_FRESHNESS_UNVERIFIED`.
 
 ## Evidence Bundle v1
 
 `run` and `check` accept `--evidence-output <relative-path>`. The GitHub Action
-accepts the same input and returns `evidence-path`. Upload remains an explicit
-workflow choice:
+accepts the same input and returns `evidence-path`. Uploading the bundle is
+still an explicit step in your workflow:
 
 ```yaml
 - name: Upload HonestCI evidence
@@ -248,11 +258,12 @@ workflow choice:
     path: .honest-ci/evidence.json
 ```
 
-The bundle contains the result, hashes of the configuration/report/baseline/
-workflow, and allowlisted GitHub provenance. It contains no raw JUnit, test
-names, logs, arbitrary environment variables, or secrets. Hashes preserve
-observed bytes; they do not prove runner authenticity, test quality, or
-correctness. See [Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md).
+The bundle contains the result, hashes of the configuration, report, baseline,
+and workflow files, and an allowlisted set of GitHub provenance fields. It does
+not contain raw JUnit, test names, logs, arbitrary environment variables, or
+secrets. The hashes record the bytes HonestCI observed. They do not prove that
+the runner is authentic, that the tests are good, or that the code is correct.
+[Evidence Bundle v1](docs/EVIDENCE_BUNDLES.md) documents the format.
 
 ## Reproduce the checks locally
 
@@ -261,40 +272,42 @@ npm ci
 npm run demo:scenarios
 ```
 
-The seven temporary scenarios assert the expected exit status and finding code.
-The original before/after zero-test proof remains available as
-`npm run demo:verify`. These demos prove that the fixtures are detected; they do
-not prove that HonestCI finds every possible CI defect.
+Each of the seven temporary scenarios asserts the expected exit status and
+finding code. The original before-and-after zero-test demo is still available
+as `npm run demo:verify`. These demos show that the fixtures are detected. They
+do not show that HonestCI finds every possible CI defect.
 
 ## Trusted baselines
 
 On a pull request, the Action fetches `.honest-ci/baseline.json` from the base
-commit through the GitHub API. A pull request cannot lower its own comparison
-target by editing the workspace copy. If a fork cannot fetch the baseline,
-HonestCI keeps its fixed minimum checks and emits
+commit through the GitHub API. A pull request therefore cannot lower its own
+comparison target by editing the copy in its workspace. If a fork cannot fetch
+the baseline, HonestCI still runs its fixed minimum checks and emits
 `HCI106_BASELINE_UNAVAILABLE`.
 
 ## Scope and documentation
 
 HonestCI v1 supports GitHub Actions and JUnit XML on Ubuntu, Windows, and
-macOS. It does not execute workflow YAML, provide a hosted service, analyze
-coverage, support GitLab/CircleCI/TRX, call an AI API, or post pull request
-comments.
+macOS. It does not execute workflow YAML, run as a hosted service, analyze
+coverage, support GitLab, CircleCI, or TRX, call an AI API, or post pull
+request comments.
 
-HonestCI verifies observable CI execution evidence. It does not prove that
-tests are sufficient, that assertions are meaningful, that all desired tests
-exist, or that a program is correct.
+HonestCI checks the evidence a CI run leaves behind. A pass does not mean the
+tests are sufficient, that their assertions are meaningful, that every test you
+need exists, or that the program is correct.
 
-[Configuration](docs/CONFIGURATION.md) ·
-[Adoption guide](docs/ADOPTION_GUIDE.md) ·
-[Technical overview](docs/TECHNICAL_OVERVIEW.md) ·
-[Runner recipes](docs/RUNNER_RECIPES.md) ·
-[Compatibility and limitations](docs/COMPATIBILITY.md) ·
-[Release policy](docs/RELEASE_POLICY.md) ·
-[Security](SECURITY.md) ·
-[Threat model](docs/THREAT_MODEL.md) ·
-[Contributing](CONTRIBUTING.md) ·
-[Maintenance](docs/MAINTENANCE.md) ·
-[Public adoption evidence](ADOPTION.md)
+Further reading:
 
-MIT License.
+- [Configuration](docs/CONFIGURATION.md)
+- [Adoption guide](docs/ADOPTION_GUIDE.md)
+- [Technical overview](docs/TECHNICAL_OVERVIEW.md)
+- [Runner recipes](docs/RUNNER_RECIPES.md)
+- [Compatibility and limitations](docs/COMPATIBILITY.md)
+- [Release policy](docs/RELEASE_POLICY.md)
+- [Security](SECURITY.md)
+- [Threat model](docs/THREAT_MODEL.md)
+- [Contributing](CONTRIBUTING.md)
+- [Maintenance](docs/MAINTENANCE.md)
+- [Public adoption evidence](ADOPTION.md)
+
+HonestCI is released under the MIT License.
