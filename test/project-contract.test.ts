@@ -5,7 +5,7 @@ import { parse } from "yaml";
 
 const readmes = ["README.md", "README.zh-TW.md", "README.zh-CN.md", "README.ja.md"];
 const stableCli = "npm install --save-dev honest-ci@1.0.6";
-const stableAction = "f0909172434/honest-ci@v1.0.6";
+const stableAction = "Chih-Kai-Wang/honest-ci@v1.0.6";
 
 describe("public project contract", () => {
   it.each(readmes)("keeps a complete Quick Start and limitations in %s", async (file) => {

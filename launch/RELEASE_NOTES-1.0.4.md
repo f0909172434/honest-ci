@@ -5,7 +5,7 @@ HonestCI 1.0.4 replaces the green shield Marketplace badge with a purple
 avoiding the misleading appearance of an antivirus or security scanner.
 
 The display name remains `HonestCI Evidence Gate`, the repository and Action
-reference remain `f0909172434/honest-ci@v1.0.4`, and the npm package remains
+reference remain `Chih-Kai-Wang/honest-ci@v1.0.4`, and the npm package remains
 `honest-ci`. There are no changes to runtime behavior, CLI commands,
 configuration, finding codes, exit codes, Action inputs or outputs, or Evidence
 Bundle v1 fields.

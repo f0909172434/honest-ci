@@ -7,7 +7,7 @@ inspect without access to private repositories, logs, or analytics.
 
 Checked on 2026-08-11 using GitHub public code search for versioned HonestCI
 Action and npm references. No independently maintained public integration was
-observed outside `f0909172434/honest-ci`. Search indexing is incomplete, so this
+observed outside `Chih-Kai-Wang/honest-ci`. Search indexing is incomplete, so this
 means “none recorded here,” not “no one uses HonestCI.”
 
 | Public repository | Evidence link | Environment | First verified | Last rechecked | Notes |
@@ -36,7 +36,7 @@ provides reproducible, sanitized evidence; never list a private repository.
 
 ## Add or correct an entry
 
-Open a [compatibility report](https://github.com/f0909172434/honest-ci/issues/new?template=compatibility.yml)
+Open a [compatibility report](https://github.com/Chih-Kai-Wang/honest-ci/issues/new?template=compatibility.yml)
 or a focused pull request. Include the public evidence URL and whether you want
 the repository named here. Anyone listed may ask to have the entry removed.
 

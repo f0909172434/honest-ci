@@ -44,7 +44,7 @@ workflows:
 checkout と依存関係のインストールの後に Action を追加し、例のコマンドを自分の JUnit テストコマンドに置き換えます。完全な commit で固定しておけば、タグが移動しても workflow の内容は変わりません。
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.6
+- uses: Chih-Kai-Wang/honest-ci@v1.0.6
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml

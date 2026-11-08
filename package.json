@@ -34,12 +34,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/f0909172434/honest-ci.git"
+    "url": "git+https://github.com/Chih-Kai-Wang/honest-ci.git"
   },
   "bugs": {
-    "url": "https://github.com/f0909172434/honest-ci/issues"
+    "url": "https://github.com/Chih-Kai-Wang/honest-ci/issues"
   },
-  "homepage": "https://github.com/f0909172434/honest-ci#readme",
+  "homepage": "https://github.com/Chih-Kai-Wang/honest-ci#readme",
   "keywords": [
     "ci",
     "github-actions",

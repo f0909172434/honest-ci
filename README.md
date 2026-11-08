@@ -6,9 +6,9 @@
 
 [English](README.md) · [繁體中文](README.zh-TW.md) · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
-[![CI](https://github.com/f0909172434/honest-ci/actions/workflows/ci.yml/badge.svg)](https://github.com/f0909172434/honest-ci/actions/workflows/ci.yml)
+[![CI](https://github.com/Chih-Kai-Wang/honest-ci/actions/workflows/ci.yml/badge.svg)](https://github.com/Chih-Kai-Wang/honest-ci/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/honest-ci)](https://www.npmjs.com/package/honest-ci)
-[![license](https://img.shields.io/github/license/f0909172434/honest-ci)](LICENSE)
+[![license](https://img.shields.io/github/license/Chih-Kai-Wang/honest-ci)](LICENSE)
 [Security policy](SECURITY.md)
 
 **Make green CI mean the tests you expected actually ran.**
@@ -110,7 +110,7 @@ jobs:
       - run: npm ci
       - name: Run tests through HonestCI
         id: honest_ci
-        uses: f0909172434/honest-ci@v1.0.6
+        uses: Chih-Kai-Wang/honest-ci@v1.0.6
         with:
           command: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
           config: honest-ci.yml
