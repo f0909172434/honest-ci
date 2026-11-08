@@ -13,7 +13,7 @@ bundle change is ncc's asset-path helper, which now decodes percent-encoded
 install paths such as directories containing spaces. Developing HonestCI
 itself now requires Node.js 22.12 or newer.
 
-The repository and Action reference remain `f0909172434/honest-ci@v1.0.6`, and
+The repository and Action reference remain `Chih-Kai-Wang/honest-ci@v1.0.6`, and
 the npm package remains `honest-ci`. There are no changes to runtime behavior,
 CLI commands, configuration, finding codes, exit codes, Action inputs or
 outputs, or Evidence Bundle v1 fields.

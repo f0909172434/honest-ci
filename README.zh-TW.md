@@ -44,7 +44,7 @@ workflows:
 在 checkout 與安裝依賴的步驟之後加入 Action，並把範例命令換成你自己的 JUnit 測試命令。用完整的 commit 固定版本，標籤移動時 workflow 的內容也不會跟著變。
 
 ```yaml
-- uses: f0909172434/honest-ci@v1.0.6
+- uses: Chih-Kai-Wang/honest-ci@v1.0.6
   with:
     command: npm test -- --reporter=junit --outputFile=reports/junit.xml
     config: honest-ci.yml

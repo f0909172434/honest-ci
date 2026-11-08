@@ -16,7 +16,7 @@ works—or fails—in a real repository.
     node-version: 24
     cache: npm
 - run: npm ci
-- uses: f0909172434/honest-ci@v1.0.6
+- uses: Chih-Kai-Wang/honest-ci@v1.0.6
   with:
     command: npm test -- --reporter=default --reporter=junit --outputFile.junit=reports/junit.xml
     config: honest-ci.yml
@@ -40,7 +40,7 @@ steps:
       node-version: 24
       cache: npm
   - run: npm ci
-  - uses: f0909172434/honest-ci@v1.0.6
+  - uses: Chih-Kai-Wang/honest-ci@v1.0.6
     with:
       command: npm test -- --ci --reporters=default --reporters=jest-junit
       config: honest-ci.yml
@@ -57,7 +57,7 @@ Do not add `--passWithNoTests`; HonestCI intentionally warns about it.
   with:
     python-version: "3.13"
 - run: python -m pip install -r requirements.txt
-- uses: f0909172434/honest-ci@v1.0.6
+- uses: Chih-Kai-Wang/honest-ci@v1.0.6
   with:
     command: python -m pytest --junitxml=reports/junit.xml
     config: honest-ci.yml
@@ -75,7 +75,7 @@ Surefire normally writes JUnit-compatible XML under `target/surefire-reports/`:
     distribution: temurin
     java-version: "21"
     cache: maven
-- uses: f0909172434/honest-ci@v1.0.6
+- uses: Chih-Kai-Wang/honest-ci@v1.0.6
   with:
     command: mvn --batch-mode test
     config: honest-ci.yml

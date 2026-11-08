@@ -115,7 +115,7 @@ Action. HonestCI protects a pull-request baseline by reading it from the base
 commit, but it does not independently protect the configuration or workflow
 from review-approved changes.
 
-Prefer the immutable `f0909172434/honest-ci@v1.0.6` reference for reproducible
+Prefer the immutable `Chih-Kai-Wang/honest-ci@v1.0.6` reference for reproducible
 workflows. The `v1` tag intentionally moves to compatible 1.x releases.
 
 ## Intentional test-count changes

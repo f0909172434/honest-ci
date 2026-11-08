@@ -9,7 +9,7 @@ matching results are unchanged, including dot files, symbolic links, and the
 workspace boundary check. The bundled `undici` is updated to 6.29.0, which
 fixes two WebSocket denial-of-service advisories.
 
-The repository and Action reference remain `f0909172434/honest-ci@v1.0.5`, and
+The repository and Action reference remain `Chih-Kai-Wang/honest-ci@v1.0.5`, and
 the npm package remains `honest-ci`. There are no changes to runtime behavior,
 CLI commands, configuration, finding codes, exit codes, Action inputs or
 outputs, or Evidence Bundle v1 fields.
